@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>ZeroHitman — Peta Percabangan Teknik Pentest v5.0</title>
+<style>
+  @page { size: A4; margin: 12mm 10mm; }
+
+  :root {
+    --bg:        #0a0e1a;
+    --bg-card:   #111827;
+    --bg-tree:   #0d1117;
+    --border:    #1f2937;
+    --border-hi: #374151;
+    --text:      #e5e7eb;
+    --text-dim:  #9ca3af;
+    --text-mute: #6b7280;
+    --cyan:      #22d3ee;
+    --cyan-hi:   #06b6d4;
+    --gold:      #fbbf24;
+    --green:     #4ade80;
+    --red:       #f87171;
+    --orange:    #fb923c;
+    --purple:    #a78bfa;
+    --blue:      #60a5fa;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    line-height: 1.55;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page { padding: 0 8mm; }
+
+  /* ====== COVER ====== */
+  .cover {
+    min-height: 260mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    page-break-after: always;
+    position: relative;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(34,211,238,0.15) 0%, transparent 55%),
+      radial-gradient(circle at 50% 70%, rgba(251,191,36,0.08) 0%, transparent 45%);
+    pointer-events: none;
+  }
+  .cover-inner { position: relative; z-index: 1; }
+
+  .logo-wrap {
+    margin-bottom: 28px;
+    padding: 18px;
+    background: rgba(34,211,238,0.05);
+    border: 1px solid rgba(34,211,238,0.25);
+    border-radius: 16px;
+    display: inline-block;
+    box-shadow:
+      0 0 40px rgba(34,211,238,0.2),
+      inset 0 0 30px rgba(34,211,238,0.05);
+  }
+  .logo-wrap img {
+    width: 140px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(34,211,238,0.5));
+  }
+
+  .cover h1 {
+    font-size: 27pt;
+    margin: 0 0 8px;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cover .subtitle {
+    font-size: 11pt;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .cover .tagline {
+    font-size: 11pt;
+    color: var(--text-dim);
+    max-width: 480px;
+    margin: 20px auto;
+    line-height: 1.75;
+  }
+  .cover .divider {
+    width: 60px;
+    height: 2px;
+    background: var(--cyan);
+    margin: 24px auto;
+    box-shadow: 0 0 10px var(--cyan);
+  }
+  .author-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 22px;
+    background: rgba(251,191,36,0.08);
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 30px;
+    margin-top: 28px;
+  }
+  .author-badge .label {
+    font-size: 8.5pt;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .author-badge .name {
+    font-size: 13pt;
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .version-tag {
+    position: absolute;
+    bottom: 20px;
+    right: 8mm;
+    font-size: 8.5pt;
+    color: var(--text-mute);
+    letter-spacing: 1px;
+    font-family: 'Consolas', monospace;
+  }
+
+  /* ====== HEADINGS ====== */
+  h1 { font-size: 17pt; color: #fff; margin: 0 0 8px; font-weight: 700; }
+  h2 {
+    font-size: 14.5pt;
+    color: var(--cyan);
+    border-bottom: 2px solid var(--border-hi);
+    padding-bottom: 8px;
+    margin-top: 22px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h3 {
+    font-size: 11.5pt;
+    color: var(--gold);
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+    font-weight: 600;
+  }
+  .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: linear-gradient(135deg, var(--cyan-hi), var(--cyan));
+    color: var(--bg);
+    border-radius: 50%;
+    font-size: 10pt;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  p { font-size: 10pt; margin: 6px 0; }
+  strong { color: #fff; }
+  em { color: var(--cyan); font-style: normal; }
+
+  /* ====== TREES ====== */
+  .tree {
+    background: var(--bg-tree);
+    border: 1px solid var(--border-hi);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 8.2pt;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+    page-break-inside: avoid;
+    margin: 10px 0;
+    color: #c9d1d9;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .tree .l1 { color: var(--gold); font-weight: bold; font-size: 9pt; }
+  .tree .l2 { color: var(--cyan); font-weight: 600; }
+  .tree .l3 { color: var(--green); }
+  .tree .l4 { color: var(--orange); }
+  .tree .leaf { color: var(--red); }
+  .tree .cross { color: var(--purple); font-weight: bold; }
+  .tree .note { color: var(--text-mute); font-style: italic; }
+
+  /* ====== TABLE ====== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: var(--bg-card);
+    color: var(--cyan);
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-hi);
+    text-transform: uppercase;
+    font-size: 8.5pt;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+  td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  tr:hover td { background: rgba(34,211,238,0.03); }
+
+  /* ====== CALLOUT ====== */
+  .callout {
+    background: var(--bg-card);
+    border-left: 4px solid var(--gold);
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  .callout .title {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .callout.info { border-left-color: var(--cyan); }
+  .callout.info .title { color: var(--cyan); }
+  .callout.danger { border-left-color: var(--red); }
+  .callout.danger .title { color: var(--red); }
+  .callout.success { border-left-color: var(--green); }
+  .callout.success .title { color: var(--green); }
+
+  /* ====== LEGEND ====== */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 12px 0;
+    font-size: 9pt;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block;
+  }
+  .legend .dot.l1 { background: var(--gold); }
+  .legend .dot.l2 { background: var(--cyan); }
+  .legend .dot.l3 { background: var(--green); }
+  .legend .dot.l4 { background: var(--orange); }
+  .legend .dot.leaf { background: var(--red); }
+  .legend .dot.cross { background: var(--purple); }
+
+  .page-break { page-break-before: always; }
+
+  .footer-note {
+    font-size: 8.5pt;
+    color: var(--text-mute);
+    text-align: center;
+    margin-top: 30px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    font-family: 'Consolas', monospace;
+  }
+  .footer-note strong { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- COVER -->
+<!-- ============================================ -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="logo-wrap">
+      <img src="https://raw.githubusercontent.com/ZeroHitman/zerohitman.github.io/refs/heads/main/hitman.png" alt="ZeroHitman">
+    </div>
+    <h1>Peta Percabangan<br>Teknik Pentest</h1>
+    <div class="subtitle">Branch Tree Only</div>
+    <div class="divider"></div>
+    <div class="tagline">
+      Level 1 → Level 2 → Level 3 → Level 4 → Leaf.<br>
+      Struktur percabangan murni — tanpa payload, tanpa command.
+    </div>
+    <div class="author-badge">
+      <span class="label">Written by</span>
+      <span class="name">zerohitman</span>
+    </div>
+  </div>
+  <div class="version-tag">V5.0 · PURE BRANCHING</div>
+</div>
+
+<!-- ============================================ -->
+<!-- LEGEND + OVERVIEW -->
+<!-- ============================================ -->
+<div class="page">
+<h1>📖 Cara Membaca Peta Ini</h1>
+
+<p>Setiap teknik diurai sebagai pohon percabangan berlapis. Setiap level menunjukkan kedalaman analisis:</p>
+
+<div class="legend">
+  <div class="item"><span class="dot l1"></span><span>Level 1 — Teknik Induk</span></div>
+  <div class="item"><span class="dot l2"></span><span>Level 2 — Cabang Utama</span></div>
+  <div class="item"><span class="dot l3"></span><span>Level 3 — Sub-Cabang</span></div>
+  <div class="item"><span class="dot l4"></span><span>Level 4 — Detail Eksekusi</span></div>
+  <div class="item"><span class="dot leaf"></span><span>Leaf — Dampak Akhir</span></div>
+  <div class="item"><span class="dot cross"></span><span>Cross — Titik Temu</span></div>
+</div>
+
+<div class="callout info">
+  <div class="title">💡 Cara Pakai</div>
+  Peta ini <strong>tidak</strong> mengajarkan payload. Peta ini mengajarkan <strong>arah</strong>.
+  Setelah kamu tahu harus ke mana (cabang mana), kamu cari payload-nya sendiri di lab/sumber lain.
+  Fokus di sini: <strong>struktur berpikir</strong>.
+</div>
+
+<h2 style="margin-top:30px;"><span class="section-num">📊</span>Overview Total Percabangan</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Teknik</th>
+      <th>L1</th>
+      <th>L2</th>
+      <th>L3</th>
+      <th>L4</th>
+      <th>Leaf</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>SQL Injection</td><td>9</td><td>34</td><td>~62</td><td>~75</td><td>~85</td></tr>
+    <tr><td>Local File Inclusion</td><td>9</td><td>38</td><td>~71</td><td>~80</td><td>~95</td></tr>
+    <tr><td>Source Leak (.git/.svn/.hg)</td><td>6</td><td>22</td><td>~41</td><td>~48</td><td>~55</td></tr>
+    <tr><td>Laravel Ignition</td><td>5</td><td>18</td><td>~32</td><td>~40</td><td>~45</td></tr>
+    <tr><td>Laravel Logout Leak</td><td>7</td><td>24</td><td>~44</td><td>~52</td><td>~60</td></tr>
+    <tr style="background:rgba(34,211,238,0.05);"><td><strong>TOTAL</strong></td><td><strong>36</strong></td><td><strong>136</strong></td><td><strong>~250</strong></td><td><strong>~295</strong></td><td><strong>~340</strong></td></tr>
+  </tbody>
+</table>
+
+<div class="callout success">
+  <div class="title">🎯 Inti Pesan</div>
+  Rata-rata hunter pemula hanya mengeksplorasi <strong>1–2 cabang</strong> per teknik.
+  Hunter berpengalaman mengeksplorasi <strong>semua cabang</strong> sampai habis.
+  Inilah perbedaan hasil.
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SQLI TREE -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">1</span>SQL Injection — Percabangan Lengkap</h2>
+
+<pre class="tree"><span class="l1">SQLi (injection point ditemukan)</span>
+│
+├── <span class="l2">[1] DATA EXTRACTION</span>
+│   ├── <span class="l3">[1.1] Tabel users</span>
+│   │   ├── <span class="l4">[1.1.1] Password hash</span> ──► <span class="leaf">crack → ATO</span>
+│   │   ├── <span class="l4">[1.1.2] Email list</span> ──► <span class="leaf">phishing / credential stuffing</span>
+│   │   ├── <span class="l4">[1.1.3] Session token</span> ──► <span class="leaf">session hijack</span>
+│   │   ├── <span class="l4">[1.1.4] Reset token</span> ──► <span class="leaf">reset user lain</span>
+│   │   └── <span class="l4">[1.1.5] API key user</span> ──► <span class="leaf">akses API</span>
+│   ├── <span class="l3">[1.2] Tabel config</span>
+│   │   ├── <span class="l4">[1.2.1] DB creds</span> ──► <span class="leaf">cross-DB access</span>
+│   │   ├── <span class="l4">[1.2.2] SMTP creds</span> ──► <span class="leaf">phishing</span>
+│   │   ├── <span class="l4">[1.2.3] Payment key</span> ──► <span class="leaf">financial</span>
+│   │   ├── <span class="l4">[1.2.4] OAuth secret</span> ──► <span class="leaf">impersonate app</span>
+│   │   ├── <span class="l4">[1.2.5] AWS/GCP key</span> ──► <span class="leaf">cloud</span>
+│   │   └── <span class="l4">[1.2.6] Firebase key</span> ──► <span class="leaf">realtime DB</span>
+│   ├── <span class="l3">[1.3] Tabel logs</span>
+│   │   ├── <span class="l4">[1.3.1] Internal IP</span> ──► <span class="leaf">internal recon</span>
+│   │   ├── <span class="l4">[1.3.2] Error message</span> ──► <span class="leaf">source fragment</span>
+│   │   └── <span class="l4">[1.3.3] Username & time</span> ──► <span class="leaf">timing attack</span>
+│   ├── <span class="l3">[1.4] Tabel sessions</span> ──► <span class="leaf">mass hijack</span>
+│   ├── <span class="l3">[1.5] Tabel payment/orders</span>
+│   │   ├── <span class="l4">[1.5.1] PII customer</span> ──► <span class="leaf">privasi / GDPR</span>
+│   │   └── <span class="l4">[1.5.2] Kartu kredit</span> ──► <span class="leaf">financial</span>
+│   └── <span class="l3">[1.6] information_schema</span>
+│       ├── <span class="l4">[1.6.1] List tabel</span> ──► <span class="leaf">peta data</span>
+│       ├── <span class="l4">[1.6.2] List kolom</span> ──► <span class="leaf">target lanjutan</span>
+│       └── <span class="l4">[1.6.3] Privilege user</span> ──► <span class="leaf">tahu bisa RCE atau tidak</span>
+│
+├── <span class="l2">[2] FILE READ</span>
+│   ├── <span class="l3">[2.1] /etc/passwd</span>
+│   │   ├── <span class="l4">[2.1.1] Username list</span> ──► <span class="leaf">SSH brute</span>
+│   │   └── <span class="l4">[2.1.2] Service account</span> ──► <span class="leaf">target privesc</span>
+│   ├── <span class="l3">[2.2] .env</span>
+│   │   ├── <span class="l4">[2.2.1] APP_KEY</span> ──► <span class="leaf">auth bypass</span>
+│   │   ├── <span class="l4">[2.2.2] DB creds</span> ──► <span class="leaf">port scan → login</span>
+│   │   ├── <span class="l4">[2.2.3] AWS keys</span> ──► <span class="leaf">cloud</span>
+│   │   └── <span class="l4">[2.2.4] SMTP</span> ──► <span class="leaf">phishing</span>
+│   ├── <span class="l3">[2.3] config/database.php</span> ──► <span class="leaf">hardcoded creds</span>
+│   ├── <span class="l3">[2.4] ~/.ssh/id_rsa</span> ──► <span class="leaf">SSH access</span>
+│   ├── <span class="l3">[2.5] ~/.bash_history</span> ──► <span class="leaf">command insight</span>
+│   ├── <span class="l3">[2.6] /proc/self/environ</span> ──► <span class="leaf">env leak</span>
+│   ├── <span class="l3">[2.7] /proc/self/cmdline</span> ──► <span class="leaf">docroot path</span>
+│   ├── <span class="l3">[2.8] Web server log</span> ──► <span class="leaf">path + UA recon</span>
+│   └── <span class="l3">[2.9] /etc/hosts</span> ──► <span class="leaf">internal hostname</span>
+│
+├── <span class="l2">[3] FILE WRITE</span>
+│   ├── <span class="l3">[3.1] Webroot writable</span>
+│   │   ├── <span class="l4">[3.1.1] Tulis shell</span> ──► <span class="leaf">RCE</span>
+│   │   ├── <span class="l4">[3.1.2] Tulis .htaccess</span> ──► <span class="leaf">handler abuse</span>
+│   │   ├── <span class="l4">[3.1.3] Tulis .user.ini</span> ──► <span class="leaf">auto prepend</span>
+│   │   └── <span class="l4">[3.1.4] Tulis .env</span> ──► <span class="leaf">poison config</span>
+│   ├── <span class="l3">[3.2] /etc/cron.d writable</span> ──► <span class="leaf">persistent RCE</span>
+│   ├── <span class="l3">[3.3] ~/.ssh/authorized_keys</span> ──► <span class="leaf">SSH access</span>
+│   ├── <span class="l3">[3.4] Log file append</span> ──► <span class="leaf">log poisoning → LFI chain</span>
+│   └── <span class="l3">[3.5] MySQL plugin_dir</span> ──► <span class="leaf">UDF upload</span>
+│
+├── <span class="l2">[4] UDF EXPLOITATION</span>
+│   ├── <span class="l3">[4.1] sys_eval()</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.2] sys_exec()</span> ──► <span class="leaf">RCE</span>
+│   └── <span class="l3">[4.3] Privilege abuse</span> ──► <span class="leaf">load lib</span>
+│
+├── <span class="l2">[5] STACKED QUERIES</span>
+│   ├── <span class="l3">[5.1] INSERT admin baru</span> ──► <span class="leaf">login admin</span>
+│   ├── <span class="l3">[5.2] UPDATE own role</span> ──► <span class="leaf">privesc</span>
+│   ├── <span class="l3">[5.3] UPDATE user password</span> ──► <span class="leaf">ATO</span>
+│   ├── <span class="l3">[5.4] DELETE logs</span> ──► <span class="leaf">anti-forensic</span>
+│   └── <span class="l3">[5.5] CREATE backdoor user</span> ──► <span class="leaf">persistence</span>
+│
+├── <span class="l2">[6] OS COMMAND (MSSQL)</span>
+│   ├── <span class="l3">[6.1] xp_cmdshell</span>
+│   │   ├── <span class="l4">[6.1.1] Direct cmd</span> ──► <span class="leaf">RCE</span>
+│   │   ├── <span class="l4">[6.1.2] Reverse shell</span> ──► <span class="leaf">RCE</span>
+│   │   └── <span class="l4">[6.1.3] Download & run</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[6.2] xp_dirtree (SMB)</span> ──► <span class="leaf">NTLM hash</span>
+│   ├── <span class="l3">[6.3] xp_fileexist</span> ──► <span class="leaf">file oracle</span>
+│   ├── <span class="l3">[6.4] sp_OACreate</span> ──► <span class="leaf">COM exec</span>
+│   └── <span class="l3">[6.5] OPENROWSET</span>
+│       ├── <span class="l4">[6.5.1] Read file</span> ──► <span class="leaf">info disclosure</span>
+│       └── <span class="l4">[6.5.2] Write file</span> ──► <span class="leaf">shell write</span>
+│
+├── <span class="l2">[7] SSRF VIA SQL</span>
+│   ├── <span class="l3">[7.1] LOAD_FILE ke UNC</span> ──► <span class="leaf">NTLM capture</span>
+│   ├── <span class="l3">[7.2] xp_dirtree ke attacker</span> ──► <span class="leaf">SMB outbound</span>
+│   └── <span class="l3">[7.3] DNS exfil</span> ──► <span class="leaf">data via DNS</span>
+│
+├── <span class="l2">[8] INFO GATHERING</span>
+│   ├── <span class="l3">[8.1] version()</span> ──► <span class="leaf">CVE lookup</span>
+│   ├── <span class="l3">[8.2] @@datadir</span> ──► <span class="leaf">path insight</span>
+│   ├── <span class="l3">[8.3] user()</span> ──► <span class="leaf">privilege level</span>
+│   ├── <span class="l3">[8.4] @@hostname</span> ──► <span class="leaf">network recon</span>
+│   └── <span class="l3">[8.5] Error dump</span> ──► <span class="leaf">table/column leak</span>
+│
+└── <span class="l2">[9] AUTH BYPASS</span>
+    ├── <span class="l3">[9.1] Login form bypass</span> ──► <span class="leaf">login as first user</span>
+    ├── <span class="l3">[9.2] Admin bypass</span> ──► <span class="leaf">admin access</span>
+    ├── <span class="l3">[9.3] UNION fake user</span> ──► <span class="leaf">fake session</span>
+    └── <span class="l3">[9.4] Blind password oracle</span> ──► <span class="leaf">blind extract</span>
+
+<span class="cross">╔═══════════════════════════════════════════════════════════════╗
+║  CROSS → [1] creds → PORT SCAN → LOGIN                        ║
+║  CROSS → [2] file read → LFI chain                            ║
+║  CROSS → [3][4][6] write/exec → RCE                           ║
+║  CROSS → [2.2] APP_KEY → AUTH BYPASS                          ║
+╚═══════════════════════════════════════════════════════════════╝</span></pre>
+</div>
+
+<!-- ============================================ -->
+<!-- LFI TREE -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">2</span>Local File Inclusion — Percabangan Lengkap</h2>
+
+<pre class="tree"><span class="l1">LFI (include point ditemukan)</span>
+│
+├── <span class="l2">[1] FILE READ → INFO DISCLOSURE</span>
+│   ├── <span class="l3">[1.1] /etc/passwd</span>
+│   │   ├── <span class="l4">[1.1.1] Username list</span> ──► <span class="leaf">SSH brute</span>
+│   │   └── <span class="l4">[1.1.2] Service accounts</span> ──► <span class="leaf">target privesc</span>
+│   ├── <span class="l3">[1.2] /etc/shadow</span> ──► <span class="leaf">password hash</span>
+│   ├── <span class="l3">[1.3] .env</span>
+│   │   ├── <span class="l4">[1.3.1] DB creds</span> ──► <span class="leaf">port scan → login</span>
+│   │   ├── <span class="l4">[1.3.2] APP_KEY</span> ──► <span class="leaf">cookie forge</span>
+│   │   ├── <span class="l4">[1.3.3] AWS key</span> ──► <span class="leaf">cloud</span>
+│   │   ├── <span class="l4">[1.3.4] SMTP</span> ──► <span class="leaf">phishing</span>
+│   │   └── <span class="l4">[1.3.5] Payment key</span> ──► <span class="leaf">financial</span>
+│   ├── <span class="l3">[1.4] config.php</span> ──► <span class="leaf">hardcoded creds</span>
+│   ├── <span class="l3">[1.5] .htpasswd</span> ──► <span class="leaf">basic auth hash</span>
+│   ├── <span class="l3">[1.6] wp-config.php</span> ──► <span class="leaf">WP admin</span>
+│   ├── <span class="l3">[1.7] ~/.ssh/id_rsa</span> ──► <span class="leaf">SSH access</span>
+│   ├── <span class="l3">[1.8] ~/.bash_history</span> ──► <span class="leaf">command history</span>
+│   ├── <span class="l3">[1.9] /etc/hosts</span> ──► <span class="leaf">internal hostname</span>
+│   ├── <span class="l3">[1.10] /proc/self/environ</span> ──► <span class="leaf">env leak</span>
+│   ├── <span class="l3">[1.11] /proc/self/cmdline</span> ──► <span class="leaf">docroot path</span>
+│   ├── <span class="l3">[1.12] /proc/self/cwd</span> ──► <span class="leaf">current dir</span>
+│   └── <span class="l3">[1.13] Docker/K8s secrets</span> ──► <span class="leaf">container creds</span>
+│
+├── <span class="l2">[2] FILE READ → SOURCE CODE</span>
+│   ├── <span class="l3">[2.1] php://filter (base64)</span>
+│   │   ├── <span class="l4">[2.1.1] Baca PHP source</span> ──► <span class="leaf">analisa</span>
+│   │   ├── <span class="l4">[2.1.2] Temukan creds</span> ──► <span class="leaf">login</span>
+│   │   ├── <span class="l4">[2.1.3] Temukan include()</span> ──► <span class="leaf">LFI baru</span>
+│   │   ├── <span class="l4">[2.1.4] Temukan upload handler</span> ──► <span class="leaf">upload bug</span>
+│   │   └── <span class="l4">[2.1.5] Temukan query</span> ──► <span class="leaf">SQLi baru</span>
+│   ├── <span class="l3">[2.2] Framework config</span> ──► <span class="leaf">middleware & auth logic</span>
+│   ├── <span class="l3">[2.3] .git/HEAD via LFI</span> ──► <span class="leaf">.git dump</span>
+│   └── <span class="l3">[2.4] composer.json</span> ──► <span class="leaf">CVE lookup</span>
+│
+├── <span class="l2">[3] RCE → LOG POISONING</span>
+│   ├── <span class="l3">[3.1] Apache access.log</span>
+│   │   ├── <span class="l4">[3.1.1] User-Agent injection</span> ──► <span class="leaf">RCE</span>
+│   │   └── <span class="l4">[3.1.2] Path fallback</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.2] Apache error.log</span>
+│   │   └── <span class="l4">[3.2.1] Referer injection</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.3] Nginx log</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.4] SSH auth.log</span>
+│   │   └── <span class="l4">[3.4.1] Username injection</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.5] PHP-FPM log</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.6] MySQL log</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.7] Laravel log</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[3.8] Mail log</span> ──► <span class="leaf">RCE</span>
+│   └── <span class="l3">[3.9] Custom app log</span> ──► <span class="leaf">RCE</span>
+│
+├── <span class="l2">[4] RCE → PHP WRAPPER</span>
+│   ├── <span class="l3">[4.1] php://input</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.2] data://</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.3] expect://</span> ──► <span class="leaf">RCE (rare)</span>
+│   ├── <span class="l3">[4.4] zip://</span>
+│   │   └── <span class="l4">[4.4.1] Upload zip berisi shell</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.5] phar://</span>
+│   │   └── <span class="l4">[4.5.1] Deserialization gadget</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.6] php://filter chain</span> ──► <span class="leaf">RCE</span>
+│   └── <span class="l3">[4.7] Filter chain generator</span> ──► <span class="leaf">RCE</span>
+│
+├── <span class="l2">[5] RCE → SESSION POISONING</span>
+│   ├── <span class="l3">[5.1] Inject ke username/bio</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[5.2] Include /tmp/sess_*</span> ──► <span class="leaf">RCE</span>
+│   └── <span class="l3">[5.3] Include /var/lib/php/sessions</span> ──► <span class="leaf">RCE</span>
+│
+├── <span class="l2">[6] RCE → /PROC</span>
+│   ├── <span class="l3">[6.1] /proc/self/environ</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[6.2] /proc/self/fd/0</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[6.3] /proc/self/fd/N</span> ──► <span class="leaf">RCE / info</span>
+│   └── <span class="l3">[6.4] /proc/self/maps</span> ──► <span class="leaf">memory leak</span>
+│
+├── <span class="l2">[7] FILE WRITE VIA LFI</span>
+│   ├── <span class="l3">[7.1] Log injection</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[7.2] Session write</span> ──► <span class="leaf">RCE</span>
+│   └── <span class="l3">[7.3] Filter write (base64-decode)</span> ──► <span class="leaf">shell write</span>
+│
+├── <span class="l2">[8] BLIND LFI</span>
+│   ├── <span class="l3">[8.1] Time-based oracle</span> ──► <span class="leaf">file existence</span>
+│   ├── <span class="l3">[8.2] Error-based oracle</span> ──► <span class="leaf">path leak</span>
+│   ├── <span class="l3">[8.3] Status code oracle</span> ──► <span class="leaf">binary search</span>
+│   └── <span class="l3">[8.4] Filter chain oracle</span> ──► <span class="leaf">byte read</span>
+│
+└── <span class="l2">[9] LFI → CROSS TEKNIK</span>
+    ├── <span class="l3">[9.1] Source → SQLi baru</span>
+    ├── <span class="l3">[9.2] Source → upload bug</span>
+    ├── <span class="l3">[9.3] .git/config → git dump</span>
+    ├── <span class="l3">[9.4] .env → port scan → login</span>
+    └── <span class="l3">[9.5] composer.json → CVE</span>
+
+<span class="cross">╔═══════════════════════════════════════════════════════════════╗
+║  CROSS → [1.3] .env → PORT SCAN → LOGIN                       ║
+║  CROSS → [2] source → SQLi / upload / auth bug                ║
+║  CROSS → [3][4][5][6][7] → RCE                                ║
+║  CROSS → [1.7] SSH key → SSH access                           ║
+║  CROSS → [1.3.2] APP_KEY → cookie forge                       ║
+╚═══════════════════════════════════════════════════════════════╝</span></pre>
+</div>
+
+<!-- ============================================ -->
+<!-- SOURCE LEAK TREE -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">3</span>Source Leak (.git/.svn/.hg) — Percabangan Lengkap</h2>
+
+<pre class="tree"><span class="l1">Source Leak (folder .git/.svn/.hg terekspos)</span>
+│
+├── <span class="l2">[1] ANALISA SOURCE CODE</span>
+│   ├── <span class="l3">[1.1] Grep password/secret</span>
+│   │   ├── <span class="l4">[1.1.1] DB creds</span> ──► <span class="leaf">login DB</span>
+│   │   ├── <span class="l4">[1.1.2] SMTP creds</span> ──► <span class="leaf">phishing</span>
+│   │   ├── <span class="l4">[1.1.3] JWT secret</span> ──► <span class="leaf">forge token</span>
+│   │   ├── <span class="l4">[1.1.4] API key</span> ──► <span class="leaf">3rd party access</span>
+│   │   ├── <span class="l4">[1.1.5] AWS/GCP key</span> ──► <span class="leaf">cloud</span>
+│   │   └── <span class="l4">[1.1.6] Payment key</span> ──► <span class="leaf">financial</span>
+│   ├── <span class="l3">[1.2] Grep include/require</span> ──► <span class="leaf">LFI baru</span>
+│   ├── <span class="l3">[1.3] Grep SQL query</span> ──► <span class="leaf">SQLi baru</span>
+│   ├── <span class="l3">[1.4] Grep upload handler</span> ──► <span class="leaf">upload bypass</span>
+│   ├── <span class="l3">[1.5] Grep eval/system</span> ──► <span class="leaf">input taint?</span>
+│   ├── <span class="l3">[1.6] Grep unserialize</span> ──► <span class="leaf">RCE gadget</span>
+│   ├── <span class="l3">[1.7] Grep curl_exec</span> ──► <span class="leaf">SSRF</span>
+│   ├── <span class="l3">[1.8] Grep route definitions</span> ──► <span class="leaf">hidden endpoint</span>
+│   └── <span class="l3">[1.9] Grep debug/test_mode</span> ──► <span class="leaf">feature flag</span>
+│
+├── <span class="l2">[2] GIT HISTORY</span>
+│   ├── <span class="l3">[2.1] Log --all -p</span> ──► <span class="leaf">old password</span>
+│   ├── <span class="l3">[2.2] Deleted files</span> ──► <span class="leaf">old bug</span>
+│   ├── <span class="l3">[2.3] .git/logs/HEAD</span>
+│   │   ├── <span class="l4">[2.3.1] Author email</span> ──► <span class="leaf">credential spray</span>
+│   │   ├── <span class="l4">[2.3.2] Username</span> ──► <span class="leaf">OSINT</span>
+│   │   └── <span class="l4">[2.3.3] Commit message</span> ──► <span class="leaf">insight</span>
+│   ├── <span class="l3">[2.4] .git/config</span>
+│   │   ├── <span class="l4">[2.4.1] Remote URL</span> ──► <span class="leaf">internal git</span>
+│   │   └── <span class="l4">[2.4.2] Embedded creds</span> ──► <span class="leaf">git access</span>
+│   └── <span class="l3">[2.5] Branch lain</span> ──► <span class="leaf">unreleased bug</span>
+│
+├── <span class="l2">[3] CONFIG ANALYSIS</span>
+│   ├── <span class="l3">[3.1] .env</span>
+│   │   ├── <span class="l4">[3.1.1] DB creds</span> ──► <span class="leaf">port scan → login</span>
+│   │   ├── <span class="l4">[3.1.2] APP_KEY</span> ──► <span class="leaf">cookie forge</span>
+│   │   ├── <span class="l4">[3.1.3] Redis creds</span> ──► <span class="leaf">Redis RCE</span>
+│   │   └── <span class="l4">[3.1.4] DocumentRoot</span> ──► <span class="leaf">path known</span>
+│   ├── <span class="l3">[3.2] composer.json</span> ──► <span class="leaf">CVE lookup</span>
+│   ├── <span class="l3">[3.3] package.json</span> ──► <span class="leaf">npm CVE</span>
+│   ├── <span class="l3">[3.4] requirements.txt</span> ──► <span class="leaf">Python CVE</span>
+│   ├── <span class="l3">[3.5] Dockerfile</span> ──► <span class="leaf">service topology</span>
+│   └── <span class="l3">[3.6] .htaccess / nginx.conf</span> ──► <span class="leaf">hidden route</span>
+│
+├── <span class="l2">[4] DESERIALIZATION / CRYPTO</span>
+│   ├── <span class="l3">[4.1] unserialize() tainted</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.2] phar:// deserialization</span> ──► <span class="leaf">RCE</span>
+│   ├── <span class="l3">[4.3] Weak crypto (MD5/DES)</span> ──► <span class="leaf">break crypto</span>
+│   ├── <span class="l3">[4.4] Hardcoded IV/salt</span> ──► <span class="leaf">decrypt data</span>
+│   └── <span class="l3">[4.5] Custom JWT</span> ──► <span class="leaf">auth bypass</span>
+│
+├── <span class="l2">[5] NEW ATTACK SURFACE</span>
+│   ├── <span class="l3">[5.1] Hidden endpoint</span> ──► <span class="leaf">test bug baru</span>
+│   ├── <span class="l3">[5.2] Hidden parameter</span> ──► <span class="leaf">aktifkan debug</span>
+│   ├── <span class="l3">[5.3] Beta feature</span> ──► <span class="leaf">bug belum review</span>
+│   ├── <span class="l3">[5.4] Admin endpoint</span> ──► <span class="leaf">akses kontrol</span>
+│   └── <span class="l3">[5.5] Internal API</span> ──► <span class="leaf">test dari luar</span>
+│
+└── <span class="l2">[6] BACKDOOR / SUPPLY CHAIN</span>
+    ├── <span class="l3">[6.1] Backdoor in source</span> ──► <span class="leaf">RCE</span>
+    ├── <span class="l3">[6.2] Malicious build</span> ──► <span class="leaf">RCE</span>
+    ├── <span class="l3">[6.3] Malicious dep</span> ──► <span class="leaf">RCE</span>
+    └── <span class="l3">[6.4] Hardcoded admin</span> ──► <span class="leaf">login admin</span>
+
+<span class="cross">╔═══════════════════════════════════════════════════════════════╗
+║  CROSS → [1.1] creds → PORT SCAN → LOGIN                      ║
+║  CROSS → [1.2] LFI → LFI chain                                ║
+║  CROSS → [1.3] SQLi → SQLi chain                              ║
+║  CROSS → [1.4] upload → RCE                                   ║
+║  CROSS → [4] deserial → RCE                                   ║
+║  CROSS → [5.2] debug → IGNITION / LOGOUT LEAK                 ║
+║  CROSS → [3.5] Docker → internal pivot                        ║
+╚═══════════════════════════════════════════════════════════════╝</span></pre>
+</div>
+
+<!-- ============================================ -->
+<!-- IGNITION TREE -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">4</span>Laravel Ignition — Percabangan Lengkap</h2>
+
+<pre class="tree"><span class="l1">Ignition CVE-2021-3129 (endpoint accessible)</span>
+│
+├── <span class="l2">[1] RCE (langsung)</span>
+│   ├── <span class="l3">[1.1] Tulis shell</span>
+│   │   ├── <span class="l4">[1.1.1] shell.php</span> ──► <span class="leaf">RCE</span>
+│   │   └── <span class="l4">[1.1.2] Backdoor persist</span> ──► <span class="leaf">persistence</span>
+│   ├── <span class="l3">[1.2] Reverse shell</span> ──► <span class="leaf">interactive</span>
+│   ├── <span class="l3">[1.3] Baca file via RCE</span>
+│   │   ├── <span class="l4">[1.3.1] /etc/passwd</span> ──► <span class="leaf">user list</span>
+│   │   └── <span class="l4">[1.3.2] .env</span> ──► <span class="leaf">creds</span>
+│   ├── <span class="l3">[1.4] Network recon</span>
+│   │   ├── <span class="l4">[1.4.1] ip addr</span> ──► <span class="leaf">internal IP</span>
+│   │   ├── <span class="l4">[1.4.2] cat /etc/hosts</span> ──► <span class="leaf">internal host</span>
+│   │   └── <span class="l4">[1.4.3] arp -a</span> ──► <span class="leaf">neighbor host</span>
+│   └── <span class="l3">[1.5] Dump env</span> ──► <span class="leaf">full config leak</span>
+│
+├── <span class="l2">[2] .ENV DISCLOSURE</span>
+│   ├── <span class="l3">[2.1] DB creds</span>
+│   │   ├── <span class="l4">[2.1.1] Login DB</span> ──► <span class="leaf">data dump</span>
+│   │   ├── <span class="l4">[2.1.2] Port scan</span> ──► <span class="leaf">service list</span>
+│   │   └── <span class="l4">[2.1.3] Cred reuse SSH</span> ──► <span class="leaf">SSH access</span>
+│   ├── <span class="l3">[2.2] APP_KEY</span>
+│   │   ├── <span class="l4">[2.2.1] Forge session</span> ──► <span class="leaf">admin ATO</span>
+│   │   ├── <span class="l4">[2.2.2] Decrypt data</span> ──► <span class="leaf">info leak</span>
+│   │   └── <span class="l4">[2.2.3] Sign URL</span> ──► <span class="leaf">bypass signed route</span>
+│   ├── <span class="l3">[2.3] SMTP</span> ──► <span class="leaf">phishing</span>
+│   ├── <span class="l3">[2.4] Redis</span> ──► <span class="leaf">Redis RCE</span>
+│   ├── <span class="l3">[2.5] AWS/GCP</span> ──► <span class="leaf">cloud (careful)</span>
+│   ├── <span class="l3">[2.6] Payment key</span> ──► <span class="leaf">financial</span>
+│   └── <span class="l3">[2.7] OAuth secret</span> ──► <span class="leaf">impersonate</span>
+│
+├── <span class="l2">[3] PATH DISCLOSURE</span>
+│   ├── <span class="l3">[3.1] DocumentRoot</span>
+│   │   ├── <span class="l4">[3.1.1] Path exact</span> ──► <span class="leaf">LFI target</span>
+│   │   └── <span class="l4">[3.1.2] Writable path</span> ──► <span class="leaf">upload target</span>
+│   ├── <span class="l3">[3.2] Log path</span> ──► <span class="leaf">log poisoning</span>
+│   ├── <span class="l3">[3.3] Upload path</span> ──► <span class="leaf">upload target</span>
+│   ├── <span class="l3">[3.4] Session path</span> ──► <span class="leaf">session poison</span>
+│   └── <span class="l3">[3.5] Config path</span> ──► <span class="leaf">LFI read</span>
+│
+├── <span class="l2">[4] MISCONFIGURATION</span>
+│   ├── <span class="l3">[4.1] Docroot beda domain vs IP</span>
+│   │   ├── <span class="l4">[4.1.1] Domain: /public</span>
+│   │   ├── <span class="l4">[4.1.2] IP: parent dir</span>
+│   │   └── <span class="l4">[4.1.3] .env via IP</span> ──► <span class="leaf">bocor total</span>
+│   ├── <span class="l3">[4.2] Symlink abuse</span> ──► <span class="leaf">read storage</span>
+│   ├── <span class="l3">[4.3] Debug masih On</span> ──► <span class="leaf">stack trace leak</span>
+│   ├── <span class="l3">[4.4] Route list exposed</span> ──► <span class="leaf">hidden endpoint</span>
+│   └── <span class="l3">[4.5] Backup file</span> ──► <span class="leaf">old creds</span>
+│
+└── <span class="l2">[5] POST-RCE HARVEST</span>
+    ├── <span class="l3">[5.1] Credentials in file</span>
+    │   ├── <span class="l4">[5.1.1] .env</span> ──► <span class="leaf">creds</span>
+    │   ├── <span class="l4">[5.1.2] .aws/</span> ──► <span class="leaf">cloud</span>
+    │   └── <span class="l4">[5.1.3] .ssh/</span> ──► <span class="leaf">SSH</span>
+    ├── <span class="l3">[5.2] Database dump</span> ──► <span class="leaf">full data</span>
+    ├── <span class="l3">[5.3] Pivot internal</span>
+    │   ├── <span class="l4">[5.3.1] Scan 10.x/172.x</span> ──► <span class="leaf">new host</span>
+    │   └── <span class="l4">[5.3.2] Scan internal port</span> ──► <span class="leaf">new service</span>
+    ├── <span class="l3">[5.4] Cloud creds</span> ──► <span class="leaf">cloud (careful)</span>
+    └── <span class="l3">[5.5] Persistence</span> ──► <span class="leaf">backdoor</span>
+
+<span class="cross">╔═══════════════════════════════════════════════════════════════╗
+║  CROSS → [1] RCE → SEMUA TEKNIK POST-EXPLOIT                  ║
+║  CROSS → [2.1] DB creds → PORT SCAN → LOGIN                   ║
+║  CROSS → [2.2] APP_KEY → AUTH BYPASS                          ║
+║  CROSS → [3.1] Path → LFI target                              ║
+║  CROSS → [3.2] Log path → LOG POISONING                       ║
+║  CROSS → [4.1] Docroot → .env via IP                          ║
+║  CROSS → [4.3] Debug On → LOGOUT LEAK                         ║
+╚═══════════════════════════════════════════════════════════════╝</span></pre>
+</div>
+
+<!-- ============================================ -->
+<!-- LOGOUT LEAK TREE -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">5</span>Laravel Logout Leak — Percabangan Lengkap</h2>
+
+<pre class="tree"><span class="l1">Logout Leak (stack trace di endpoint logout / error page)</span>
+│
+├── <span class="l2">[1] DB CREDENTIALS LEAKED</span>
+│   ├── <span class="l3">[1.1] Direct DB login</span>
+│   │   ├── <span class="l4">[1.1.1] Dump users</span> ──► <span class="leaf">crack hash</span>
+│   │   ├── <span class="l4">[1.1.2] Dump payment</span> ──► <span class="leaf">PII</span>
+│   │   ├── <span class="l4">[1.1.3] Dump sessions</span> ──► <span class="leaf">hijack</span>
+│   │   └── <span class="l4">[1.1.4] Dump logs</span> ──► <span class="leaf">internal recon</span>
+│   ├── <span class="l3">[1.2] Privilege manipulation</span>
+│   │   ├── <span class="l4">[1.2.1] Update own role</span> ──► <span class="leaf">admin</span>
+│   │   └── <span class="l4">[1.2.2] Insert admin</span> ──► <span class="leaf">persistence</span>
+│   ├── <span class="l3">[1.3] Cross-DB pivot</span> ──► <span class="leaf">lateral</span>
+│   └── <span class="l3">[1.4] Stored proc / UDF</span> ──► <span class="leaf">RCE</span>
+│
+├── <span class="l2">[2] APP_KEY LEAKED</span>
+│   ├── <span class="l3">[2.1] Forge session cookie</span>
+│   │   ├── <span class="l4">[2.1.1] Impersonate admin</span> ──► <span class="leaf">ATO</span>
+│   │   └── <span class="l4">[2.1.2] Craft target user</span> ──► <span class="leaf">ATO user</span>
+│   ├── <span class="l3">[2.2] Decrypt data</span> ──► <span class="leaf">info leak</span>
+│   ├── <span class="l3">[2.3] Sign arbitrary URL</span>
+│   │   ├── <span class="l4">[2.3.1] Access signed route</span> ──► <span class="leaf">bypass</span>
+│   │   └── <span class="l4">[2.3.2] Password reset forge</span> ──► <span class="leaf">ATO</span>
+│   ├── <span class="l3">[2.4] Deserialization</span> ──► <span class="leaf">RCE</span>
+│   └── <span class="l3">[2.5] Persistence</span> ──► <span class="leaf">long-term access</span>
+│
+├── <span class="l2">[3] PATH LEAKED</span>
+│   ├── <span class="l3">[3.1] DocumentRoot</span> ──► <span class="leaf">LFI target</span>
+│   ├── <span class="l3">[3.2] Log path</span> ──► <span class="leaf">log poisoning</span>
+│   ├── <span class="l3">[3.3] Upload path</span> ──► <span class="leaf">upload target</span>
+│   ├── <span class="l3">[3.4] Session path</span> ──► <span class="leaf">session poison</span>
+│   └── <span class="l3">[3.5] Config path</span> ──► <span class="leaf">LFI read</span>
+│
+├── <span class="l2">[4] ENVIRONMENT VARIABLES LEAKED</span>
+│   ├── <span class="l3">[4.1] AWS/GCP creds</span>
+│   │   ├── <span class="l4">[4.1.1] STS check</span> ──► <span class="leaf">identity</span>
+│   │   └── <span class="l4">[4.1.2] S3 access</span> ──► <span class="leaf">bucket</span>
+│   ├── <span class="l3">[4.2] SMTP</span> ──► <span class="leaf">phishing</span>
+│   ├── <span class="l3">[4.3] Payment keys</span> ──► <span class="leaf">financial</span>
+│   ├── <span class="l3">[4.4] 3rd party API</span> ──► <span class="leaf">access service</span>
+│   ├── <span class="l3">[4.5] OAuth secret</span> ──► <span class="leaf">impersonate</span>
+│   └── <span class="l3">[4.6] Internal domain</span> ──► <span class="leaf">recon more</span>
+│
+├── <span class="l2">[5] STACK TRACE → SOURCE FRAGMENT</span>
+│   ├── <span class="l3">[5.1] File path + line</span> ──► <span class="leaf">LFI read</span>
+│   ├── <span class="l3">[5.2] Function call trace</span> ──► <span class="leaf">logic map</span>
+│   ├── <span class="l3">[5.3] Variable value</span> ──► <span class="leaf">token leak</span>
+│   └── <span class="l3">[5.4] Library version</span> ──► <span class="leaf">CVE lookup</span>
+│
+├── <span class="l2">[6] MISCONFIG DOKUMENROOT</span>
+│   ├── <span class="l3">[6.1] Domain vs IP beda root</span>
+│   │   ├── <span class="l4">[6.1.1] Domain: /public</span>
+│   │   ├── <span class="l4">[6.1.2] IP: parent</span>
+│   │   └── <span class="l4">[6.1.3] .env via IP</span> ──► <span class="leaf">bocor</span>
+│   ├── <span class="l3">[6.2] .env.bak / .old</span> ──► <span class="leaf">old creds</span>
+│   ├── <span class="l3">[6.3] Symlink abuse</span> ──► <span class="leaf">read storage</span>
+│   └── <span class="l3">[6.4] Directory listing</span> ──► <span class="leaf">see backup</span>
+│
+└── <span class="l2">[7] PORT SCAN & CRED REUSE</span>
+    ├── <span class="l3">[7.1] Scan 22/21/3306/5432/6379/9200</span>
+    │   ├── <span class="l4">[7.1.1] SSH login</span> ──► <span class="leaf">shell</span>
+    │   ├── <span class="l4">[7.1.2] FTP login</span> ──► <span class="leaf">upload shell</span>
+    │   ├── <span class="l4">[7.1.3] MySQL login</span> ──► <span class="leaf">data dump</span>
+    │   ├── <span class="l4">[7.1.4] Redis login</span> ──► <span class="leaf">RCE</span>
+    │   └── <span class="l4">[7.1.5] Elasticsearch</span> ──► <span class="leaf">data leak</span>
+    ├── <span class="l3">[7.2] Credential reuse</span> ──► <span class="leaf">admin panel</span>
+    └── <span class="l3">[7.3] Admin panel login</span> ──► <span class="leaf">full control</span>
+
+<span class="cross">╔═══════════════════════════════════════════════════════════════╗
+║  Logout Leak = HUB percabangan                                ║
+║  CROSS → [1] DB creds → SQLi chain / PORT SCAN                ║
+║  CROSS → [2] APP_KEY → AUTH BYPASS → RCE gadget               ║
+║  CROSS → [3] Path → LFI / LOG POISONING                       ║
+║  CROSS → [4] Env → CLOUD / 3RD PARTY / PHISHING               ║
+║  CROSS → [5] Stack → SOURCE LEAK chain                        ║
+║  CROSS → [6] Misconfig → .env via IP                          ║
+║  CROSS → [7] Port scan → SEMUA service internal               ║
+╚═══════════════════════════════════════════════════════════════╝</span></pre>
+</div>
+
+<!-- ============================================ -->
+<!-- CONVERGENCE MAP -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">6</span>Konvergensi — 6 Node Utama</h2>
+
+<p>Setiap percabangan di atas bertemu di 6 node berikut. Inilah "jalan tol" antar-teknik:</p>
+
+<pre class="tree"><span class="l1">6 NODE KONVERGENSI</span>
+│
+├── <span class="l2">NODE A: RCE / SHELL</span>
+│   <span class="note">Pintu masuk:</span>
+│   ├── SQLi [3] write, [4] UDF, [6] xp_cmdshell
+│   ├── LFI [3] log poison, [4] wrapper, [5] session, [6] /proc, [7] write
+│   ├── Source [1.6] deserial, [6] backdoor
+│   ├── Ignition [1] CVE
+│   └── Logout [2.4] gadget
+│   <span class="leaf">→ Setelah RCE: semuanya mungkin</span>
+│
+├── <span class="l2">NODE B: CREDENTIALS</span>
+│   <span class="note">Pintu masuk:</span>
+│   ├── SQLi [1.2] config table
+│   ├── SQLi [2.2] LOAD_FILE .env
+│   ├── LFI [1.3] .env
+│   ├── Source [1.1] grep secret
+│   ├── Source [3.1] .env
+│   ├── Ignition [2.1] .env
+│   └── Logout [1], [4], [6]
+│   <span class="leaf">→ Setelah dapat: PORT SCAN</span>
+│
+├── <span class="l2">NODE C: PATH / SOURCE KNOWLEDGE</span>
+│   <span class="note">Pintu masuk:</span>
+│   ├── SQLi [2] LOAD_FILE path
+│   ├── LFI [2] source code
+│   ├── Source [1] full source
+│   ├── Ignition [3] docroot
+│   └── Logout [3] path leak
+│   <span class="leaf">→ Setelah dapat: LFI / source analysis / CVE</span>
+│
+├── <span class="l2">NODE D: PORT / SERVICE</span>
+│   <span class="note">Pintu masuk:</span>
+│   ├── Semua [.env → creds → scan]
+│   ├── Logout [7] direct scan
+│   └── Source [3.5] Docker topology
+│   <span class="leaf">→ Setelah dapat: LOGIN SSH/FTP/DB/Redis</span>
+│
+├── <span class="l2">NODE E: AUTH BYPASS</span>
+│   <span class="note">Pintu masuk:</span>
+│   ├── SQLi [9] login bypass
+│   ├── Source [1.1] JWT secret
+│   ├── Source [4.5] custom JWT
+│   ├── Ignition [2.2] APP_KEY
+│   └── Logout [2] APP_KEY
+│   <span class="leaf">→ Setelah dapat: admin panel → fitur admin</span>
+│
+└── <span class="l2">NODE F: INTERNAL PIVOT</span>
+    <span class="note">Pintu masuk:</span>
+    ├── RCE [1] network recon
+    ├── Source [3.5] docker topology
+    ├── Logout [7] internal scan
+    └── SQLi [1.3] internal IP from log
+    <span class="leaf">→ Setelah dapat: lateral (⚠ cek scope!)</span>
+
+<span class="cross">╔═══════════════════════════════════════════════════════════════╗
+║  SEMUA TEKNIK MASUK DARI PINTU MANA SAJA,                     ║
+║  DAN KELUAR LEWAT PINTU MANA SAJA.                            ║
+╚═══════════════════════════════════════════════════════════════╝</span></pre>
+
+<h3>🔀 Diagram Visual Konvergensi</h3>
+
+<pre class="tree"><span class="l1">PETA BESAR — SEMUA TEKNIK BERTEMU DI 6 NODE</span>
+
+   SQLi    LFI    Source    Ignition    Logout
+     │       │       │          │           │
+     └───────┴───────┴────┬─────┴───────────┘
+                          │
+                          ▼
+        ┌─────────────┬────────┬────────┬────────┬────────┬────────┐
+        ▼             ▼        ▼        ▼        ▼        ▼        ▼
+    [NODE A]    [NODE B]  [NODE C] [NODE D] [NODE E] [NODE F]
+     RCE        CREDS     PATH     PORT    AUTH     PIVOT
+      │           │         │        │        │        │
+      └───────────┴─────────┴────────┴────────┴────────┘
+                          │
+                          ▼
+                ┌──────────────────┐
+                │  POST-EXPLOIT    │
+                │  data harvest    │
+                │  persistence     │
+                │  lateral         │
+                └──────────────────┘
+
+<span class="leaf">Setiap teknik bisa masuk dari pintu mana saja, dan keluar lewat pintu mana saja.</span></pre>
+</div>
+
+<!-- ============================================ -->
+<!-- MAPPING TABLE -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">7</span>Tabel Pemetaan — Cabang ke Node</h2>
+
+<p>Gunakan tabel ini untuk navigasi cepat: cabang mana menuju node mana.</p>
+
+<table>
+<thead>
+<tr><th>Teknik</th><th>Cabang L1</th><th>Node Tujuan</th><th>Leaf Utama</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="9"><strong>SQLi</strong></td><td>[1] Data Extraction</td><td>B, D, E</td><td>ATO, creds</td></tr>
+<tr><td>[2] File Read</td><td>B, C</td><td>creds, path</td></tr>
+<tr><td>[3] File Write</td><td>A</td><td>RCE</td></tr>
+<tr><td>[4] UDF</td><td>A</td><td>RCE</td></tr>
+<tr><td>[5] Stacked Query</td><td>E</td><td>admin, persistence</td></tr>
+<tr><td>[6] xp_cmdshell</td><td>A, F</td><td>RCE, pivot</td></tr>
+<tr><td>[7] SSRF via SQL</td><td>F</td><td>hash capture</td></tr>
+<tr><td>[8] Info Gathering</td><td>C</td><td>CVE lookup</td></tr>
+<tr><td>[9] Auth Bypass</td><td>E</td><td>login admin</td></tr>
+
+<tr><td rowspan="9"><strong>LFI</strong></td><td>[1] File Read Info</td><td>B, C, D</td><td>creds, path</td></tr>
+<tr><td>[2] Source Code</td><td>C, E</td><td>new bug</td></tr>
+<tr><td>[3] Log Poisoning</td><td>A</td><td>RCE</td></tr>
+<tr><td>[4] Wrapper</td><td>A</td><td>RCE</td></tr>
+<tr><td>[5] Session Poison</td><td>A</td><td>RCE</td></tr>
+<tr><td>[6] /proc</td><td>A, C</td><td>RCE, path</td></tr>
+<tr><td>[7] File Write</td><td>A</td><td>RCE</td></tr>
+<tr><td>[8] Blind LFI</td><td>C</td><td>oracle info</td></tr>
+<tr><td>[9] Cross Teknik</td><td>B, C, E</td><td>chain</td></tr>
+
+<tr><td rowspan="6"><strong>Source Leak</strong></td><td>[1] Analisa Source</td><td>B, C, E</td><td>creds, bug</td></tr>
+<tr><td>[2] Git History</td><td>B, E</td><td>old creds</td></tr>
+<tr><td>[3] Config</td><td>B, D</td><td>creds, topology</td></tr>
+<tr><td>[4] Deserialization</td><td>A, E</td><td>RCE</td></tr>
+<tr><td>[5] Attack Surface</td><td>E</td><td>hidden endpoint</td></tr>
+<tr><td>[6] Backdoor</td><td>A</td><td>RCE</td></tr>
+
+<tr><td rowspan="5"><strong>Ignition</strong></td><td>[1] RCE</td><td>A, F</td><td>RCE, pivot</td></tr>
+<tr><td>[2] .env</td><td>B, D, E</td><td>creds, ATO</td></tr>
+<tr><td>[3] Path</td><td>C</td><td>LFI target</td></tr>
+<tr><td>[4] Misconfig</td><td>B</td><td>.env bocor</td></tr>
+<tr><td>[5] Post-RCE</td><td>B, D, F</td><td>harvest, pivot</td></tr>
+
+<tr><td rowspan="7"><strong>Logout Leak</strong></td><td>[1] DB Creds</td><td>B, D</td><td>login DB</td></tr>
+<tr><td>[2] APP_KEY</td><td>E, A</td><td>ATO, RCE</td></tr>
+<tr><td>[3] Path</td><td>C</td><td>LFI target</td></tr>
+<tr><td>[4] Env Vars</td><td>B, D</td><td>creds</td></tr>
+<tr><td>[5] Stack Trace</td><td>C, E</td><td>source fragment</td></tr>
+<tr><td>[6] Misconfig</td><td>B</td><td>.env bocor</td></tr>
+<tr><td>[7] Port Scan</td><td>D, F</td><td>login, pivot</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<!-- CLOSING -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="page">
+<h2><span class="section-num">8</span>Ringkasan</h2>
+
+<div class="callout success">
+  <div class="title">🎯 Inti Peta Percabangan</div>
+  <ol style="margin:4px 0;">
+    <li>Setiap teknik punya <strong>5–9 cabang level-1</strong> — bukan 1.</li>
+    <li>Setiap cabang punya <strong>2–5 sub-cabang level-2/3/4</strong>.</li>
+    <li>Total: <strong>~36 cabang L1</strong> · <strong>~136 sub-cabang</strong> · <strong>~340 leaf dampak</strong>.</li>
+    <li>Semua bertemu di <strong>6 node konvergensi</strong> (RCE, Creds, Path, Port, Auth, Pivot).</li>
+    <li>Kamu tidak perlu hafal semua — cukup hafal <strong>6 node</strong> dan tahu "dari cabang X ke node mana".</li>
+  </ol>
+</div>
+
+<h3>🧠 Pola Pikir</h3>
+
+<pre class="tree"><span class="l1">FORMULA HUNTER</span>
+
+  TEMUAN
+    │
+    ├── Identifikasi CABANG (dari teknik apa?)
+    │
+    ├── Identifikasi NODE TUJUAN (mau ke mana?)
+    │
+    ├── Eksplorasi SUB-CABANG (jalankan)
+    │
+    └── Ulangi ──► sampai semua cabang habis
+                    atau sampai scope berakhir
+
+<span class="leaf">Pemula: 1 temuan → 1 laporan → selesai</span>
+<span class="cross">Berpengalaman: 1 temuan → 6 node → 40 cabang → chain of criticals</span></pre>
+
+<h3>📌 Catatan Penulis</h3>
+
+<p style="font-size:10.5pt;line-height:1.8;color:var(--text);margin-top:16px;">
+  <em style="color:var(--gold);">"</em>
+  Peta ini bukan untuk dihafal. Peta ini untuk <strong>dilihat saat mentok</strong>.
+  <br><br>
+  Saat kamu sudah dapat LFI tapi bingung mau ke mana — buka peta ini.
+  Saat kamu dapat .git leak tapi tidak tahu harus cari apa — buka peta ini.
+  Saat kamu dapat creds tapi tidak tahu harus login ke mana — buka peta ini.
+  <br><br>
+  Percabangan di peta ini sengaja <strong>tanpa payload</strong>.
+  Karena payload berubah tiap 6 bulan. <strong>Struktur berpikir bertahan bertahun-tahun.</strong>
+  <br><br>
+  Kuasai petanya dulu. Payload-nya akan datang sendiri.
+  <br><br>
+  <em style="color:var(--gold);">"</em>
+  <br>
+  <span style="color:var(--gold);font-weight:700;">— zerohitman</span>
+</p>
+
+<div class="footer-note">
+  <p><strong>ZeroHitman Playbook v5.0</strong> · Pure Branching Edition</p>
+  <p>Written by <strong>zerohitman</strong> · For educational & authorized testing only</p>
+  <p>Penggunaan tanpa izin = pelanggaran UU ITE, CFAA, CMA</p>
+</div>
+</div>
+
+</body>
+</html>
