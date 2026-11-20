@@ -1,2 +1,50 @@
-<?xml version='1.0' encoding='utf-8'?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://zerohitman.github.io/</loc></url><url><loc>https://zerohitman.github.io/tree.html</loc></url><url><loc>https://zerohitman.github.io/sqli.html</loc></url><url><loc>https://zerohitman.github.io/lfi.html</loc></url><url><loc>https://zerohitman.github.io/source-leak.html</loc></url><url><loc>https://zerohitman.github.io/laravel-ignition.html</loc></url><url><loc>https://zerohitman.github.io/laravel-logout-leak.html</loc></url><url><loc>https://zerohitman.github.io/conclusion.html</loc></url></urlset>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+       <loc>https://zerohitman.github.io/</loc>
+       <lastmod>2026-11-20T04:40:00+00:00</lastmod>
+       <priority>1.0000</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/tree.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/index.html</loc>
+       <lastmod>2026-11-20T04:40:00+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/sqli.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/lfi.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/source-leak.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/laravel-ignition.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/laravel-logout-leak.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://zerohitman.github.io/conclusion.html</loc>
+       <lastmod>2026-11-20T05:18:03+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+</urlset>
