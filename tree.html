@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>ZeroHitman — Peta Percabangan Teknik Pentest v5.0</title>
+<title>ZeroHitman — Tree & Investigation Methodology</title>
 <style>
   @page { size: A4; margin: 12mm 10mm; }
 
@@ -299,6 +299,48 @@
   }
   .footer-note strong { color: var(--gold); }
 </style>
+
+<style>
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { background: #080d18; }
+  .cover { min-height: min(86vh, 760px); padding: 48px 20px; }
+  .main-nav { position: sticky; top: 0; z-index: 50; display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:10px 14px; background:rgba(8,13,24,.94); border-top:1px solid #1f2937; border-bottom:1px solid #263548; backdrop-filter: blur(12px); }
+  .main-nav a { color:#aab8c8; text-decoration:none; font-size:12px; padding:8px 11px; border-radius:7px; border:1px solid transparent; }
+  .main-nav a:hover,.main-nav a.active { color:#22d3ee; background:rgba(34,211,238,.08); border-color:rgba(34,211,238,.25); }
+  .page { max-width:1180px; margin:0 auto; padding:28px clamp(16px,3vw,42px); }
+  .intro-panel { padding:clamp(20px,4vw,38px); margin:10px 0 26px; border:1px solid rgba(34,211,238,.28); border-radius:16px; background:linear-gradient(145deg,rgba(34,211,238,.09),rgba(17,24,39,.9) 52%,rgba(167,139,250,.06)); box-shadow:0 18px 50px rgba(0,0,0,.18); }
+  .intro-panel .eyebrow { color:#22d3ee; letter-spacing:2px; font-size:9pt; font-weight:700; }
+  .intro-panel h1 { font-size:clamp(23px,4vw,38px); line-height:1.15; margin:8px 0 14px; }
+  .intro-panel > p:not(.eyebrow) { max-width:850px; color:#c5d0dc; font-size:11pt; line-height:1.8; }
+  .mindset-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:24px; }
+  .mindset-grid article,.definition-grid article { background:rgba(8,13,24,.62); border:1px solid #263548; border-radius:10px; padding:14px; }
+  .mindset-grid article span { color:#22d3ee; font:700 10pt Consolas,monospace; }
+  .mindset-grid h3 { color:#fbbf24; margin:6px 0; }
+  .mindset-grid p,.definition-grid p { color:#aab8c8; font-size:9.5pt; margin:0; }
+  .definition-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:16px 0; }
+  .definition-grid strong { color:#22d3ee; }
+  .quick-nav { margin:24px 0; padding:18px; border:1px solid #263548; background:#0d1422; border-radius:12px; }
+  .quick-nav h2 { margin:0 0 12px; border:0; padding:0; font-size:13pt; }
+  .quick-nav-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+  .quick-nav-grid a { color:#dbeafe; text-decoration:none; padding:11px 12px; background:#111c2d; border:1px solid #263548; border-radius:8px; }
+  .quick-nav-grid a:hover { border-color:#22d3ee; color:#22d3ee; }
+  .quick-nav-grid b { color:#22d3ee; margin-right:7px; font-family:Consolas,monospace; }
+  .detail-link { margin-left:auto; color:#22d3ee; text-decoration:none; font-size:9pt; white-space:nowrap; border:1px solid rgba(34,211,238,.3); padding:5px 9px; border-radius:7px; }
+  .detail-link:hover { background:rgba(34,211,238,.1); }
+  .section-lead { padding:12px 15px; border-left:3px solid #22d3ee; background:rgba(34,211,238,.055); color:#c5d0dc; border-radius:0 8px 8px 0; line-height:1.75; }
+  .tree { font-size:clamp(7.2pt,.78vw,8.2pt); }
+  .page-break { border-top:1px solid #1f2937; margin-top:20px; }
+  h2[id],h1[id] { scroll-margin-top:82px; }
+  table { overflow-wrap:anywhere; }
+  @media(max-width:850px) { .mindset-grid,.definition-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .quick-nav-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .main-nav { justify-content:flex-start; overflow-x:auto; flex-wrap:nowrap; } .main-nav a { flex:0 0 auto; } }
+  @media(max-width:520px) { .mindset-grid,.definition-grid,.quick-nav-grid { grid-template-columns:1fr; } .cover .subtitle { letter-spacing:2px; } .detail-link { display:block; margin:8px 0 0; width:max-content; } h2 { flex-wrap:wrap; } .page { padding:18px 12px; } }
+  @media print { .main-nav,.quick-nav { display:none; } .page { max-width:none; } .cover { min-height:260mm; } }
+</style>
+
+  <link rel="canonical" href="https://zerohitman.github.io/tree.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="ZeroHitman Investigation Tree: peta hubungan teknik keamanan web, cabang investigasi, dan pendekatan analisis vulnerability berdasarkan bukti dan kondisi." />
 </head>
 <body>
 
@@ -308,46 +350,92 @@
 <div class="cover">
   <div class="cover-inner">
     <div class="logo-wrap">
-      <img src="https://raw.githubusercontent.com/ZeroHitman/zerohitman.github.io/refs/heads/main/hitman.png" alt="ZeroHitman">
+      <img src="hitman.png" alt="ZeroHitman">
     </div>
     <h1>Peta Percabangan<br>Teknik Pentest</h1>
-    <div class="subtitle">Branch Tree Only</div>
+    <div class="subtitle">Investigation Tree & Methodology</div>
     <div class="divider"></div>
     <div class="tagline">
-      Level 1 → Level 2 → Level 3 → Level 4 → Leaf.<br>
-      Struktur percabangan murni — tanpa payload, tanpa command.
+      Satu temuan dapat membuka banyak kemungkinan investigasi.<br>
+      Peta hubungan teknik — bukan urutan eksploitasi yang wajib diikuti.
     </div>
     <div class="author-badge">
       <span class="label">Written by</span>
       <span class="name">zerohitman</span>
     </div>
   </div>
-  <div class="version-tag">V5.0 · PURE BRANCHING</div>
+  <div class="version-tag">V5.0 · INVESTIGATION MAP</div>
 </div>
 
 <!-- ============================================ -->
+
+<nav class="main-nav" aria-label="Navigasi dokumentasi">
+  <a href="index.html">Home</a>
+  <a class="active" href="tree.html">Investigation Tree</a>
+  <a href="sqli.html">SQL Injection</a>
+  <a href="lfi.html">LFI</a>
+  <a href="source-leak.html">Source Leak</a>
+  <a href="laravel-ignition.html">Laravel Ignition</a>
+  <a href="laravel-logout-leak.html">Logout Leak</a>
+  <a href="conclusion.html">Conclusion</a>
+</nav>
+
 <!-- LEGEND + OVERVIEW -->
 <!-- ============================================ -->
 <div class="page">
-<h1>📖 Cara Membaca Peta Ini</h1>
+<section id="mindset" class="intro-panel">
+  <p class="eyebrow">ZEROHITMAN METHODOLOGY</p>
+  <h1>Mulai dari temuan, lanjutkan dengan pertanyaan.</h1>
+  <p>ZeroHitman memandang sebuah vulnerability atau informasi awal sebagai <strong>titik awal investigasi</strong>. Temuan pertama dapat memberi petunjuk baru, membuka konteks aplikasi, atau mengarahkan peneliti pada kelemahan lain. Karena itu, satu teknik tidak selalu berdiri sendiri.</p>
+  <div class="mindset-grid">
+    <article><span>01</span><h3>Temukan</h3><p>Catat bukti awal dan konteks kemunculannya.</p></article>
+    <article><span>02</span><h3>Pahami</h3><p>Kenali penyebab, mekanisme, prasyarat, dan batasan teknisnya.</p></article>
+    <article><span>03</span><h3>Hubungkan</h3><p>Tanyakan informasi atau kondisi apa yang mungkin dibuka oleh temuan tersebut.</p></article>
+    <article><span>04</span><h3>Prioritaskan</h3><p>Pilih cabang yang relevan berdasarkan bukti, scope, risiko, dan dampaknya.</p></article>
+  </div>
+</section>
 
-<p>Setiap teknik diurai sebagai pohon percabangan berlapis. Setiap level menunjukkan kedalaman analisis:</p>
+<h1 id="read-tree">📖 Cara Membaca Peta Ini</h1>
+
+<p>Setiap teknik diurai sebagai pohon percabangan. Level menunjukkan <strong>pengelompokan dan kedalaman hubungan</strong>, bukan tahapan wajib yang harus dijalankan secara berurutan.</p>
 
 <div class="legend">
   <div class="item"><span class="dot l1"></span><span>Level 1 — Teknik Induk</span></div>
   <div class="item"><span class="dot l2"></span><span>Level 2 — Cabang Utama</span></div>
   <div class="item"><span class="dot l3"></span><span>Level 3 — Sub-Cabang</span></div>
   <div class="item"><span class="dot l4"></span><span>Level 4 — Detail Eksekusi</span></div>
-  <div class="item"><span class="dot leaf"></span><span>Leaf — Dampak Akhir</span></div>
-  <div class="item"><span class="dot cross"></span><span>Cross — Titik Temu</span></div>
+  <div class="item"><span class="dot leaf"></span><span>Leaf — Hasil, informasi, kondisi, atau dampak</span></div>
+  <div class="item"><span class="dot cross"></span><span>Cross — Hubungan lintas cabang/teknik</span></div>
+</div>
+
+<div class="definition-grid">
+  <article><strong>Node</strong><p>Satu titik informasi, kondisi, teknik, atau hasil di dalam peta.</p></article>
+  <article><strong>Branch</strong><p>Jalur kemungkinan yang bercabang dari sebuah node.</p></article>
+  <article><strong>Leaf</strong><p>Ujung dari cabang pada versi peta ini; dapat berupa temuan atau dampak, bukan selalu dampak akhir.</p></article>
+  <article><strong>Cross</strong><p>Relasi ke cabang atau teknik lain. Relasi ini perlu divalidasi, bukan dianggap otomatis terjadi.</p></article>
 </div>
 
 <div class="callout info">
   <div class="title">💡 Cara Pakai</div>
   Peta ini <strong>tidak</strong> mengajarkan payload. Peta ini mengajarkan <strong>arah</strong>.
   Setelah kamu tahu harus ke mana (cabang mana), kamu cari payload-nya sendiri di lab/sumber lain.
-  Fokus di sini: <strong>struktur berpikir</strong>.
+  Fokus di sini: <strong>struktur berpikir</strong>. Setiap cabang adalah kemungkinan untuk dinilai, bukan hasil yang dijamin. Validasi selalu bergantung pada arsitektur, konfigurasi, privilege, versi, bukti, dan batas scope pengujian.
 </div>
+
+
+<section class="quick-nav" aria-label="Daftar bagian Tree">
+  <h2>Jelajahi peta</h2>
+  <div class="quick-nav-grid">
+    <a href="#sqli"><b>01</b> SQL Injection</a>
+    <a href="#lfi"><b>02</b> Local File Inclusion</a>
+    <a href="#source-leak"><b>03</b> Source Leak</a>
+    <a href="#ignition"><b>04</b> Laravel Ignition</a>
+    <a href="#logout-leak"><b>05</b> Laravel Logout Leak</a>
+    <a href="#convergence"><b>06</b> Convergence</a>
+    <a href="#mapping"><b>07</b> Mapping</a>
+    <a href="#summary"><b>08</b> Summary</a>
+  </div>
+</section>
 
 <h2 style="margin-top:30px;"><span class="section-num">📊</span>Overview Total Percabangan</h2>
 
@@ -374,9 +462,7 @@
 
 <div class="callout success">
   <div class="title">🎯 Inti Pesan</div>
-  Rata-rata hunter pemula hanya mengeksplorasi <strong>1–2 cabang</strong> per teknik.
-  Hunter berpengalaman mengeksplorasi <strong>semua cabang</strong> sampai habis.
-  Inilah perbedaan hasil.
+  Peneliti tidak harus mengeksplorasi semua cabang. Pilih cabang yang <strong>relevan dan dapat dibuktikan</strong> berdasarkan kondisi target, scope, risiko, serta tujuan pengujian. Peta membantu memperluas pertanyaan, bukan memaksa semua jalur untuk dicoba.
 </div>
 </div>
 
@@ -385,7 +471,7 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">1</span>SQL Injection — Percabangan Lengkap</h2>
+<h2 id="sqli"><span class="section-num">1</span>SQL Injection — Percabangan Lengkap <a class="detail-link" href="sqli.html">Pelajari SQLi →</a></h2>
 
 <pre class="tree"><span class="l1">SQLi (injection point ditemukan)</span>
 │
@@ -499,7 +585,7 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">2</span>Local File Inclusion — Percabangan Lengkap</h2>
+<h2 id="lfi"><span class="section-num">2</span>Local File Inclusion — Percabangan Lengkap <a class="detail-link" href="lfi.html">Pelajari LFI →</a></h2>
 
 <pre class="tree"><span class="l1">LFI (include point ditemukan)</span>
 │
@@ -605,7 +691,7 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">3</span>Source Leak (.git/.svn/.hg) — Percabangan Lengkap</h2>
+<h2 id="source-leak"><span class="section-num">3</span>Source Leak (.git/.svn/.hg) — Percabangan Lengkap <a class="detail-link" href="source-leak.html">Pelajari Source Leak →</a></h2>
 
 <pre class="tree"><span class="l1">Source Leak (folder .git/.svn/.hg terekspos)</span>
 │
@@ -686,7 +772,8 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">4</span>Laravel Ignition — Percabangan Lengkap</h2>
+<h2 id="ignition"><span class="section-num">4</span>Laravel Ignition — Percabangan Lengkap <a class="detail-link" href="laravel-ignition.html">Pelajari Ignition →</a></h2>
+<p class="section-lead">Ignition adalah error page/debugging tool untuk aplikasi Laravel. Keberadaan halaman Ignition saja tidak otomatis berarti vulnerability; risiko muncul ketika informasi sensitif atau fungsi berbahaya terekspos dalam konfigurasi dan kondisi tertentu.</p>
 
 <pre class="tree"><span class="l1">Ignition CVE-2021-3129 (endpoint accessible)</span>
 │
@@ -766,7 +853,8 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">5</span>Laravel Logout Leak — Percabangan Lengkap</h2>
+<h2 id="logout-leak"><span class="section-num">5</span>Laravel Logout Leak — Percabangan Lengkap <a class="detail-link" href="laravel-logout-leak.html">Pelajari Logout Leak →</a></h2>
+<p class="section-lead"><strong>Logout Leak</strong> adalah istilah deskriptif yang digunakan penulis untuk pola temuan ketika endpoint logout atau request terkait menampilkan exception/debug information. Ini bukan nama kategori vulnerability standar. Error method mismatch seperti HTTP 405 sendiri belum membuktikan kebocoran; isi response dan informasi yang benar-benar terekspos harus diperiksa.</p>
 
 <pre class="tree"><span class="l1">Logout Leak (stack trace di endpoint logout / error page)</span>
 │
@@ -852,7 +940,8 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">6</span>Konvergensi — 6 Node Utama</h2>
+<h2 id="convergence"><span class="section-num">6</span>Konvergensi — 6 Node Utama</h2>
+<p class="section-lead">Node konvergensi adalah kategori tujuan yang dipakai untuk mengelompokkan beberapa jalur dari teknik berbeda. Satu jalur hanya berhubungan dengan node tertentu jika prasyarat teknisnya terpenuhi dan hubungan tersebut didukung bukti.</p>
 
 <p>Setiap percabangan di atas bertemu di 6 node berikut. Inilah "jalan tol" antar-teknik:</p>
 
@@ -948,7 +1037,7 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">7</span>Tabel Pemetaan — Cabang ke Node</h2>
+<h2 id="mapping"><span class="section-num">7</span>Tabel Pemetaan — Cabang ke Node</h2>
 
 <p>Gunakan tabel ini untuk navigasi cepat: cabang mana menuju node mana.</p>
 
@@ -1006,7 +1095,7 @@
 <!-- ============================================ -->
 <div class="page-break"></div>
 <div class="page">
-<h2><span class="section-num">8</span>Ringkasan</h2>
+<h2 id="summary"><span class="section-num">8</span>Ringkasan</h2>
 
 <div class="callout success">
   <div class="title">🎯 Inti Peta Percabangan</div>
@@ -1014,8 +1103,8 @@
     <li>Setiap teknik punya <strong>5–9 cabang level-1</strong> — bukan 1.</li>
     <li>Setiap cabang punya <strong>2–5 sub-cabang level-2/3/4</strong>.</li>
     <li>Total: <strong>~36 cabang L1</strong> · <strong>~136 sub-cabang</strong> · <strong>~340 leaf dampak</strong>.</li>
-    <li>Semua bertemu di <strong>6 node konvergensi</strong> (RCE, Creds, Path, Port, Auth, Pivot).</li>
-    <li>Kamu tidak perlu hafal semua — cukup hafal <strong>6 node</strong> dan tahu "dari cabang X ke node mana".</li>
+    <li>Dalam peta V5.0 ini, beberapa jalur dikelompokkan ke <strong>6 node konvergensi utama</strong> (RCE, Credentials, Path, Port, Auth, Pivot). Ini bukan daftar universal seluruh kemungkinan dampak vulnerability.</li>
+    <li>Kamu tidak perlu menghafal seluruh cabang. Pahami kategori node, lalu gunakan peta untuk menemukan hubungan yang relevan.</li>
   </ol>
 </div>
 
@@ -1031,7 +1120,7 @@
     │
     ├── Eksplorasi SUB-CABANG (jalankan)
     │
-    └── Ulangi ──► sampai semua cabang habis
+    └── Ulangi ──► selama masih relevan, diizinkan, dan didukung bukti
                     atau sampai scope berakhir
 
 <span class="leaf">Pemula: 1 temuan → 1 laporan → selesai</span>
@@ -1050,7 +1139,7 @@
   Percabangan di peta ini sengaja <strong>tanpa payload</strong>.
   Karena payload berubah tiap 6 bulan. <strong>Struktur berpikir bertahan bertahun-tahun.</strong>
   <br><br>
-  Kuasai petanya dulu. Payload-nya akan datang sendiri.
+  Pahami fondasinya. Gunakan referensi teknis sesuai kondisi yang benar-benar ditemukan.
   <br><br>
   <em style="color:var(--gold);">"</em>
   <br>
@@ -1058,7 +1147,7 @@
 </p>
 
 <div class="footer-note">
-  <p><strong>ZeroHitman Playbook v5.0</strong> · Pure Branching Edition</p>
+  <p><strong>ZeroHitman Investigation Tree v5.0</strong> · Pure Branching Edition</p>
   <p>Written by <strong>zerohitman</strong> · For educational & authorized testing only</p>
   <p>Penggunaan tanpa izin = pelanggaran UU ITE, CFAA, CMA</p>
 </div>
