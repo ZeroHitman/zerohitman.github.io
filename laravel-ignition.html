@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ZeroHitman: penjelasan mendalam Laravel Ignition, debug exception page, information disclosure, CVE-2021-3129, document root misconfiguration, kondisi dampak, dan mitigasi.">
+<meta name="theme-color" content="#080d18">
+<title>Laravel Ignition — ZeroHitman Documentation</title>
+<link rel="stylesheet" href="assets/css/docs.css">
+<style>
+.hero{padding-top:66px}.hero h1{max-width:900px}.notice{padding:13px 16px;border:1px solid #475569;border-radius:11px;background:#111827;color:#cbd5e1;font-size:14px}.severity{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(251,113,133,.12);color:#fda4af;border:1px solid rgba(251,113,133,.35)}.shot{margin:20px 0;padding:12px;background:#fff;border:1px solid #334155;border-radius:14px}.shot img{display:block;width:100%;height:auto;border-radius:8px}.shot figcaption{color:#475569;font-size:13px;padding:10px 5px 2px}.definition{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.definition article{background:#101a2b;border:1px solid #24344b;border-radius:12px;padding:16px}.definition b{display:block;color:#22d3ee;margin-bottom:6px}.timeline{border-left:2px solid #29435b;margin:18px 0 18px 9px;padding-left:22px}.timeline article{position:relative;margin:0 0 18px}.timeline article:before{content:"";position:absolute;left:-29px;top:7px;width:12px;height:12px;border-radius:50%;background:#22d3ee;border:2px solid #080d18}.kicker{color:#22d3ee;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}.tree{display:block;overflow-x:auto;white-space:pre;padding:16px;background:#07111f;border:1px solid #24344b;border-radius:10px;color:#cbd5e1;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}.callout.warn{border-left-color:#fbbf24;background:rgba(251,191,36,.07)}.callout.good{border-left-color:#4ade80;background:rgba(74,222,128,.06)}.source-list li{margin:7px 0;overflow-wrap:anywhere}@media(max-width:850px){.definition{grid-template-columns:1fr}}
+</style>
+  <link rel="canonical" href="https://zerohitman.github.io/laravel-ignition.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="index.html"><img src="hitman.png" alt="ZeroHitman logo"><span>ZeroHitman<small>SECURITY RESEARCH DOCUMENTATION</small></span></a>
+<nav class="navlinks"><a href="tree.html">Investigation Tree</a><a href="sqli.html">SQLi</a><a href="lfi.html">LFI</a><a href="source-leak.html">Source Leak</a><a href="laravel-logout-leak.html">Logout Leak</a></nav>
+</div></header>
+<main class="wrap">
+<section class="hero">
+<div class="eyebrow">ZeroHitman / Technique Reference 05</div>
+<h1>Laravel Ignition</h1>
+<p>Memahami halaman exception dan debugging Laravel, informasi yang dapat terlihat ketika debug exposure terjadi, serta kondisi khusus ketika komponen Ignition memiliki vulnerability tersendiri.</p>
+<div class="pills"><span class="pill">Laravel</span><span class="pill">Exception Handling</span><span class="pill">Debug Information Disclosure</span><span class="pill">CVE-2021-3129</span></div>
+</section>
+<div class="layout">
+<aside class="toc"><h2>Daftar Isi</h2><ol>
+<li><a href="#intro">Pengertian Ignition</a></li><li><a href="#role">Fungsi dan Komponen</a></li><li><a href="#debug">Debug Mode</a></li><li><a href="#docroot">Document Root Misconfiguration</a></li><li><a href="#visual">Mengenali Tampilan</a></li><li><a href="#disclosure">Information Disclosure</a></li><li><a href="#signals">Membaca Sinyal</a></li><li><a href="#distinction">Error vs Vulnerability</a></li><li><a href="#cve">CVE-2021-3129</a></li><li><a href="#conditions">Kondisi dan Dampak</a></li><li><a href="#branching">Peta Percabangan</a></li><li><a href="#cross">Cross-Technique</a></li><li><a href="#assessment">Cara Menilai Temuan</a></li><li><a href="#mitigation">Mitigasi</a></li><li><a href="#summary">Kesimpulan</a></li><li><a href="#references">Referensi</a></li>
+</ol></aside>
+<div class="content">
+<section class="section" id="intro"><div class="kicker">01 / Introduction</div><h2>Apa Itu Laravel Ignition?</h2>
+<p class="lead"><strong>Laravel Ignition</strong> adalah halaman error dan debugging yang dirancang untuk membantu developer memahami exception pada aplikasi Laravel. Ia menyajikan pesan exception, stack trace, potongan kode, serta konteks request dan aplikasi dalam antarmuka yang lebih mudah dibaca.</p>
+<p>Ignition pada dasarnya merupakan <strong>alat bantu debugging</strong>, bukan vulnerability dengan sendirinya. Keberadaannya pada aplikasi tidak otomatis berarti aplikasi rentan. Risiko muncul ketika detail internal yang seharusnya hanya tersedia bagi developer ikut ditampilkan kepada pengguna yang tidak berwenang, atau ketika versi dan konfigurasi komponen memiliki kelemahan keamanan tertentu.</p>
+<div class="callout"><strong>Pembedaan utama:</strong> “Laravel Ignition” adalah nama komponen/halaman debugging. “Debug information disclosure” adalah kategori risiko ketika informasi internal terekspos. “CVE-2021-3129” adalah vulnerability spesifik pada versi dan kondisi tertentu. Ketiganya tidak boleh dianggap sebagai istilah yang sama.</div>
+</section>
+<section class="section" id="role"><div class="kicker">02 / Purpose and Components</div><h2>Fungsi Ignition dan Informasi yang Ditampilkan</h2>
+<p>Ketika aplikasi mengalami exception, Ignition membantu developer menemukan sumber masalah tanpa harus menelusuri log secara manual dari awal. Tampilan dan fitur dapat berbeda menurut generasi Ignition, versi Laravel, dan konfigurasi aplikasi.</p>
+<div class="definition">
+<article><b>Exception Message</b><p>Menampilkan jenis exception dan ringkasan masalah, misalnya view tidak ditemukan atau variable tidak tersedia.</p></article>
+<article><b>Stack Trace</b><p>Menunjukkan rangkaian pemanggilan fungsi yang berujung pada exception, termasuk frame aplikasi dan framework.</p></article>
+<article><b>Source Context</b><p>Dapat memperlihatkan file dan baris kode yang berkaitan dengan exception sehingga developer mengetahui lokasi masalah.</p></article>
+<article><b>Request / App Context</b><p>Bergantung versi dan konfigurasi, halaman dapat menyediakan informasi request, environment aplikasi, user context, atau aktivitas debug.</p></article>
+</div>
+<p>Dokumentasi pembuat Ignition menjelaskan bahwa halaman ini dirancang untuk memudahkan pembacaan application frames, view, request parameters, middleware, context, serta debug information. Tidak semua tab atau detail selalu tersedia di setiap versi. Lihat <a href="https://freek.dev/1441-ignition-a-new-error-page-for-laravel" target="_blank" rel="noopener">penjelasan awal Ignition</a> dan <a href="https://freek.dev/2168-ignition-the-most-beautiful-error-page-for-laravel-and-php-got-a-major-redesign" target="_blank" rel="noopener">pembahasan redesign Ignition</a>.</p>
+</section>
+<section class="section" id="debug"><div class="kicker">03 / Debug Configuration</div><h2>Hubungan Ignition dengan APP_DEBUG</h2>
+<p>Laravel memiliki konfigurasi debugging yang lazimnya dikendalikan melalui environment configuration, termasuk nilai <code>APP_DEBUG</code>. Saat debugging diaktifkan, aplikasi dapat menampilkan detail exception yang berguna selama pengembangan. Pada production, detail tersebut umumnya harus disembunyikan dari pengguna.</p>
+<div class="table-wrap"><table><thead><tr><th>Konfigurasi / kondisi</th><th>Perilaku umum</th><th>Catatan keamanan</th></tr></thead><tbody>
+<tr><td><code>APP_DEBUG=true</code></td><td>Detail exception lebih lengkap dapat ditampilkan.</td><td>Berisiko membocorkan informasi internal jika halaman dapat diakses publik.</td></tr>
+<tr><td><code>APP_DEBUG=false</code></td><td>Detail exception untuk pengguna umumnya disederhanakan.</td><td>Periksa konfigurasi efektif dan pastikan error tetap dicatat secara aman di server-side log.</td></tr>
+<tr><td>Debug page hanya di lingkungan lokal/staging terbatas</td><td>Developer dapat menggunakan detail diagnostik.</td><td>Akses lingkungan tersebut tetap harus dibatasi; staging yang dapat diakses publik juga perlu diamankan.</td></tr>
+</tbody></table></div>
+<div class="callout danger"><strong>Catatan:</strong> jangan mengandalkan nama environment seperti <code>APP_ENV=production</code> saja. Periksa perilaku aktual, konfigurasi efektif, aksesibilitas halaman, dan apakah informasi sensitif benar-benar terpapar.</div>
+</section>
+<section class="section" id="docroot"><div class="kicker">04 / Web Server Misconfiguration</div><h2>Document Root Mismatch: Domain vs IP Address</h2>
+<p>Selain konfigurasi Laravel seperti <code>APP_DEBUG</code>, ada lapisan lain yang perlu diperiksa: konfigurasi <strong>web server</strong>. Satu server dapat melayani domain dan IP address melalui VirtualHost atau server block yang berbeda. Domain utama mungkin diarahkan dengan benar ke direktori <code>public/</code>, sementara permintaan yang datang menggunakan IP address justru jatuh ke <strong>default VirtualHost</strong> dengan document root berbeda.</p>
+<div class="callout warn"><strong>Penting:</strong> kondisi ini bukan vulnerability bawaan Laravel Ignition. Ini adalah <strong>web server misconfiguration</strong> yang dapat berdiri sendiri. Bagian ini diletakkan di halaman Ignition karena relevan dengan pola investigasi Laravel dan information disclosure, bukan karena Ignition yang menyebabkannya.</div>
+<h3>Contoh struktur project Laravel</h3>
+<pre class="tree">/var/www/html/
+|
++-- .env
++-- artisan
++-- composer.json
++-- composer.lock
++-- app/
++-- bootstrap/
++-- config/
++-- database/
++-- resources/
++-- routes/
++-- storage/
++-- vendor/
+|
++-- public/
+    +-- index.php
+    +-- .htaccess
+    +-- css/
+    +-- js/
+    +-- images/</pre>
+<p>Pada deployment Laravel yang normal, web server seharusnya menyajikan aplikasi melalui direktori <code>/var/www/html/public/</code>, bukan project root <code>/var/www/html/</code>. File seperti <code>.env</code>, <code>artisan</code>, <code>composer.json</code>, dan direktori internal Laravel tidak dimaksudkan untuk menjadi konten web publik.</p>
+<h3>Contoh perbedaan pemetaan request</h3>
+<div class="flow"><article><b>Request menggunakan domain</b><p><code>https://example.test/</code></p><p>VirtualHost yang cocok dengan domain mengarah ke <code>/var/www/html/public/</code>.</p><span class="tag">Document root yang diharapkan</span></article><article><b>Request menggunakan IP</b><p><code>http://192.0.2.10/</code></p><p>Jika tidak ada host rule yang cocok, web server dapat memilih default VirtualHost yang mengarah ke <code>/var/www/html/</code>.</p><span class="tag">Perlu diperiksa</span></article><article><b>Hasil yang mungkin</b><p>Permintaan IP dapat menyajikan project root, menolak request, melakukan redirect, atau menampilkan halaman default—bergantung konfigurasi aktual.</p><span class="tag">Tidak otomatis terekspos</span></article></div>
+<p>Web server umumnya memilih konfigurasi berdasarkan alamat/port dan nilai HTTP <code>Host</code> (serta aturan TLS/SNI untuk HTTPS). Karena itu, domain dan IP yang menuju mesin yang sama belum tentu dilayani oleh konfigurasi VirtualHost yang sama. Jika tidak ada konfigurasi yang cocok, default server/site dapat menangani request tersebut.</p>
+<h3>Informasi yang mungkin terpapar</h3>
+<div class="table-wrap"><table><thead><tr><th>Path / komponen</th><th>Potensi informasi</th><th>Batasan yang perlu diperiksa</th></tr></thead><tbody>
+<tr><td><code>.env</code></td><td>Application key, database credential, mail credential, token, atau konfigurasi sensitif.</td><td>File dot dapat diblokir oleh aturan web server; akses langsung tidak boleh diasumsikan berhasil.</td></tr>
+<tr><td><code>composer.json</code> / <code>composer.lock</code></td><td>Nama package dan versi dependency.</td><td>Hanya terbaca jika server menyajikan file tersebut dan tidak ada aturan penolakan.</td></tr>
+<tr><td><code>artisan</code>, <code>routes/</code>, <code>config/</code>, <code>app/</code></td><td>Struktur project, konfigurasi, atau source code.</td><td>PHP handler, access rules, dan konfigurasi server dapat mengubah hasil; source tidak selalu dikirim sebagai teks.</td></tr>
+<tr><td><code>storage/</code></td><td>Dalam kondisi tertentu dapat berisi log, file hasil proses, atau data aplikasi.</td><td>Laravel biasanya hanya mengekspos file publik tertentu melalui <code>public/storage</code> symlink. Isi storage privat tidak otomatis tersedia.</td></tr>
+<tr><td>Directory listing</td><td>Nama file dan direktori pada lokasi yang disajikan server.</td><td>Listing hanya muncul jika fitur autoindex/directory listing aktif dan tidak ada index file atau aturan yang mencegahnya.</td></tr>
+</tbody></table></div>
+<h3>Mengapa domain yang benar belum tentu berarti IP juga aman?</h3>
+<p>Konfigurasi domain dapat memiliki VirtualHost khusus yang menetapkan document root ke <code>public/</code>. Namun, permintaan ke alamat IP dapat menggunakan default VirtualHost yang berbeda. Jika default tersebut menunjuk ke project root, maka permukaan paparan menjadi berbeda. Ini menjelaskan mengapa pemeriksaan konfigurasi tidak cukup hanya berdasarkan satu hostname.</p>
+<div class="diagram"><pre class="tree">                         WEB SERVER
+                              |
+                 +------------+------------+
+                 |                         |
+          Request: DOMAIN             Request: IP
+          example.test                192.0.2.10
+                 |                         |
+          VirtualHost cocok          Default VirtualHost
+                 |                         |
+          /var/www/html/public/      /var/www/html/
+                 |                         |
+          Laravel public entry       Project root berpotensi
+          (index.php)                tersaji sebagai web root
+                                           |
+                               +-----------+-----------+
+                               |           |           |
+                            Ditolak     File dapat   Autoindex
+                            /redirect   terakses     mungkin aktif
+                                           |
+                                  Sensitive disclosure
+                                  hanya jika akses terbukti</pre><p class="small">Diagram konseptual. Hasil sebenarnya bergantung pada web server, urutan VirtualHost, Host header, TLS/SNI, access rules, PHP handler, dan konfigurasi directory indexing.</p></div>
+<h3>Hal yang tidak boleh langsung disimpulkan</h3>
+<ul><li>Document root salah <strong>tidak otomatis</strong> membuat <code>.env</code> dapat diunduh. Aturan deny untuk dotfiles atau file sensitif dapat tetap memblokirnya.</li><li>Directory listing <strong>tidak otomatis aktif</strong>. Web server dapat menolak listing atau menyajikan default index.</li><li>Direktori <code>storage/</code> tidak seluruhnya menjadi publik hanya karena ada folder <code>public/storage</code>. Symlink standar Laravel mengarah ke area file publik tertentu, bukan membuka semua storage privat.</li><li>Jika PHP dieksekusi oleh handler, file PHP mungkin diproses, bukan ditampilkan sebagai source. Namun file non-PHP, file konfigurasi, atau file yang salah ditangani tetap perlu dinilai sesuai respons aktual.</li><li>Respons berbeda antara domain dan IP adalah petunjuk adanya perbedaan routing/VirtualHost, bukan bukti tunggal bahwa data sensitif bocor.</li></ul>
+<h3>Hubungan dengan pola pikir ZeroHitman</h3>
+<p>Temuan ini memperlihatkan bahwa informasi awal tidak harus berasal dari bug pada aplikasi. Perbedaan perilaku antara domain dan IP dapat mengarahkan reviewer untuk mengidentifikasi default VirtualHost, membandingkan document root, lalu mengklasifikasikan apakah yang terbukti adalah konfigurasi yang keliru, source/configuration disclosure, directory listing, atau tidak ada paparan sama sekali.</p>
+<div class="callout success"><strong>Kesimpulan teknis:</strong> document root untuk aplikasi Laravel harus mengarah ke direktori <code>public/</code> pada setiap VirtualHost yang melayani aplikasi. Default VirtualHost juga harus dikonfigurasi secara aman—misalnya menolak host yang tidak dikenal atau menyajikan root publik yang benar—dan akses ke dotfiles, file konfigurasi, serta direktori privat harus diblokir secara eksplisit.</div>
+</section>
+<section class="section" id="visual"><div class="kicker">05 / Visual Recognition</div><h2>Mengenali Tampilan Laravel Ignition</h2>
+<p>Gambar berikut adalah <strong>ilustrasi antarmuka</strong> yang dibuat untuk materi ini. Gambar tersebut bukan screenshot dari server korban, bukan bukti vulnerability, dan tidak menunjukkan target nyata. Tujuannya membantu pembaca mengenali elemen umum pada halaman exception bergaya Ignition.</p>
+<figure class="shot"><img src="assets/images/laravel-ignition-example.png" alt="Ilustrasi halaman exception Laravel Ignition dengan exception message, stack trace, dan source context"><figcaption>Gambar 1. Ilustrasi halaman exception Laravel Ignition: ringkasan exception, kemungkinan solusi, daftar stack trace, dan potongan source code. Tampilan aktual dapat berbeda menurut versi.</figcaption></figure>
+<h3>Bagian yang perlu dikenali</h3>
+<ul><li><strong>Nama exception:</strong> membantu mengidentifikasi kategori kegagalan aplikasi.</li><li><strong>Pesan exception:</strong> menjelaskan kondisi yang memicu error.</li><li><strong>Path dan line number:</strong> dapat mengungkap struktur direktori atau lokasi source code.</li><li><strong>Stack trace:</strong> menunjukkan alur pemanggilan sampai exception terjadi.</li><li><strong>Source excerpt:</strong> dapat menampilkan potongan kode di sekitar baris yang bermasalah.</li><li><strong>Tab context:</strong> pada versi tertentu dapat memuat detail request, app, user, atau debug.</li></ul>
+</section>
+<section class="section" id="disclosure"><div class="kicker">06 / Information Disclosure</div><h2>Informasi Apa yang Berpotensi Terungkap?</h2>
+<p>Nilai security dari sebuah debug page bergantung pada informasi yang benar-benar terlihat dan konteks aksesnya. Tidak semua halaman Ignition menampilkan seluruh jenis data berikut.</p>
+<div class="table-wrap"><table><thead><tr><th>Jenis informasi</th><th>Contoh</th><th>Potensi nilai bagi reviewer</th></tr></thead><tbody>
+<tr><td>Path Disclosure</td><td>Lokasi file controller, view, vendor, atau root aplikasi.</td><td>Membantu memahami layout aplikasi dan lokasi komponen.</td></tr>
+<tr><td>Source Code Context</td><td>Nama fungsi, potongan kode, pemanggilan method, atau nama variable.</td><td>Dapat memberi petunjuk untuk code review dan penelusuran data flow.</td></tr>
+<tr><td>Framework / Dependency</td><td>Versi PHP, Laravel, package, atau komponen terkait jika ditampilkan.</td><td>Membantu verifikasi versi dan penentuan advisories yang relevan.</td></tr>
+<tr><td>Request Information</td><td>Path, method, route, atau parameter request tertentu.</td><td>Mengungkap bagaimana aplikasi memproses request.</td></tr>
+<tr><td>Application Context</td><td>Nama environment, konfigurasi non-secret, atau detail runtime.</td><td>Membantu memahami konfigurasi dan komponen aplikasi.</td></tr>
+<tr><td>Sensitive Values</td><td>Token, credential, data pribadi, atau secret apabila benar-benar ikut dirender.</td><td>Dapat menjadi kebocoran serius; harus dibuktikan dan segera ditangani secara aman.</td></tr>
+</tbody></table></div>
+<div class="callout warn">Jangan menyatakan “APP_KEY bocor” atau “database password terekspos” hanya karena halaman Ignition terlihat. Klaim tersebut harus didukung bukti bahwa nilai tersebut benar-benar tampil, dapat diakses, dan bukan data dummy atau redacted.</div>
+</section>
+<section class="section" id="signals"><div class="kicker">07 / Reading the Evidence</div><h2>Membaca Sinyal dari Halaman Error</h2>
+<p>Dalam pola pikir ZeroHitman, debug page diperlakukan sebagai sumber informasi awal. Pembaca dapat mengelompokkan temuan sebelum menentukan cabang investigasi yang relevan.</p>
+<div class="grid">
+<div class="mini"><h3>Framework Fingerprint</h3><p>Nama class, namespace, path vendor, dan format exception dapat memberi petunjuk bahwa aplikasi menggunakan Laravel atau komponen terkait.</p></div>
+<div class="mini"><h3>Application Structure</h3><p>Path controller, middleware, route, dan view dapat membantu menyusun gambaran struktur aplikasi.</p></div>
+<div class="mini"><h3>Configuration Clues</h3><p>Detail environment atau runtime dapat menjadi petunjuk konfigurasi yang perlu diverifikasi melalui sumber yang diizinkan.</p></div>
+<div class="mini"><h3>Version Clues</h3><p>Versi package yang terlihat dapat dibandingkan dengan release notes dan security advisories. Banner versi saja belum tentu membuktikan package aktual yang berjalan.</p></div>
+</div>
+</section>
+<section class="section" id="distinction"><div class="kicker">08 / Important Distinction</div><h2>Error Page Bukan Otomatis Vulnerability</h2>
+<div class="table-wrap"><table><thead><tr><th>Kondisi</th><th>Interpretasi</th><th>Hal yang perlu diverifikasi</th></tr></thead><tbody>
+<tr><td>Halaman exception terlihat, tetapi hanya pesan umum</td><td>Error handling yang terlihat pengguna; belum tentu ada disclosure signifikan.</td><td>Apakah detail internal atau data sensitif ikut terlihat?</td></tr>
+<tr><td>Stack trace dan absolute path terlihat</td><td>Berpotensi menjadi information disclosure.</td><td>Apakah halaman dapat diakses tanpa autentikasi? Seberapa sensitif informasi yang ditampilkan?</td></tr>
+<tr><td>Source snippet dan request context terlihat</td><td>Informasi teknis tambahan mungkin terekspos.</td><td>Apakah data tersebut membuka detail yang tidak seharusnya publik?</td></tr>
+<tr><td>Versi Ignition lama teridentifikasi</td><td>Indikasi untuk pemeriksaan versi dan advisory, bukan bukti eksploitabilitas.</td><td>Versi package yang tepat, dependency aktual, konfigurasi debug, dan patch level.</td></tr>
+<tr><td>Vulnerability spesifik pada Ignition terkonfirmasi</td><td>Temuan vulnerability komponen yang berbeda dari sekadar debug disclosure.</td><td>Seluruh prasyarat advisory dan bukti aman dalam scope pengujian.</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="cve"><div class="kicker">09 / Historical Vulnerability</div><h2>CVE-2021-3129: Laravel Ignition RCE</h2>
+<p>Salah satu vulnerability yang dikenal pada komponen Ignition adalah <strong>CVE-2021-3129</strong>. NVD menjelaskan bahwa versi Ignition sebelum 2.5.2 memiliki penggunaan <code>file_get_contents()</code> dan <code>file_put_contents()</code> yang tidak aman. Kondisi eksploitabilitas yang disebutkan mencakup aplikasi dengan debug mode aktif dan Laravel sebelum 8.4.2.</p>
+<p><span class="severity">CRITICAL · CVSS 9.8</span></p>
+<div class="callout danger"><strong>Jangan menyamakan semua halaman Ignition dengan CVE-2021-3129.</strong> CVE ini adalah bug spesifik pada komponen dan rentang versi tertentu. Menemukan halaman Ignition atau melihat stack trace tidak membuktikan bahwa CVE tersebut ada.</div>
+<h3>Rentang versi yang dicatat advisory</h3>
+<p>GitHub Advisory Database mencatat rentang terdampak untuk package <code>facade/ignition</code>, termasuk versi sebelum 1.6.15, rentang 1.7.0 hingga sebelum 1.16.14, rentang 2.0.0 hingga sebelum 2.4.2, serta rentang 2.5.0 hingga sebelum 2.5.2. Versi perbaikan yang dicatat meliputi 1.6.15, 1.16.14, 2.4.2, dan 2.5.2.</p>
+<p>Rentang versi tersebut khusus advisory package yang disebutkan. Jangan menerapkannya secara serampangan ke package atau generasi Ignition lain. Identifikasi package, versi, dependency tree, dan patch aktual terlebih dahulu.</p>
+<p>Sumber primer: <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-3129" target="_blank" rel="noopener">NIST NVD — CVE-2021-3129</a> dan <a href="https://github.com/advisories/GHSA-4qwp-7c67-jmcc" target="_blank" rel="noopener">GitHub Security Advisory — GHSA-4qwp-7c67-jmcc</a>.</p>
+<h3>Pelajaran dari CVE ini</h3>
+<ul><li>Komponen debugging dapat memiliki vulnerability tersendiri, terpisah dari fungsi utamanya sebagai error page.</li><li>Konfigurasi debug dapat menjadi prasyarat penting pada kasus tertentu.</li><li>Nama produk saja tidak cukup; versi dan kondisi konfigurasi menentukan relevansi advisory.</li><li>Perbaikan harus mengacu pada versi patched dan arahan vendor, bukan sekadar menyembunyikan halaman error.</li></ul>
+</section>
+<section class="section" id="conditions"><div class="kicker">10 / Preconditions and Impact</div><h2>Kondisi yang Menentukan Dampak</h2>
+<p>Penilaian harus memisahkan dua jalur risiko: <strong>debug information disclosure</strong> dan <strong>vulnerability pada komponen Ignition</strong>. Keduanya dapat muncul bersamaan, tetapi tidak identik.</p>
+<div class="definition">
+<article><b>Exposure Surface</b><p>Apakah debug page dapat diakses dari jaringan yang tidak dipercaya, atau hanya dari lingkungan internal yang dibatasi?</p></article>
+<article><b>Debug Configuration</b><p>Apakah detail exception ditampilkan kepada pengguna, dan bagaimana konfigurasi efektif aplikasi?</p></article>
+<article><b>Package and Version</b><p>Package Ignition apa yang digunakan dan apakah versinya termasuk rentang terdampak advisory tertentu?</p></article>
+<article><b>Runtime Conditions</b><p>Apakah seluruh prasyarat vulnerability spesifik terpenuhi? Hindari menyimpulkan dampak dari satu indikator.</p></article>
+</div>
+<p>Untuk information disclosure, dampak dapat berkisar dari pengungkapan path dan versi hingga kebocoran secret atau data sensitif, jika nilai tersebut benar-benar ditampilkan. Untuk CVE-2021-3129, advisory mengklasifikasikannya sebagai remote code execution pada kondisi yang dijelaskan oleh NVD.</p>
+</section>
+<section class="section" id="branching"><div class="kicker">11 / ZeroHitman Branching</div><h2>Percabangan Investigasi Laravel Ignition</h2>
+<p>Bagian ini merupakan peta analisis konseptual. Setiap cabang adalah arah pemeriksaan yang mungkin relevan berdasarkan bukti, bukan urutan wajib dan bukan klaim bahwa satu temuan otomatis menghasilkan temuan lain.</p>
+<pre class="tree">LARAVEL IGNITION / DEBUG EXCEPTION
+|
++-- 1. EXCEPTION INFORMATION
+|   +-- Exception class and message
+|   +-- Framework / package fingerprint
+|   +-- Error context
+|
++-- 2. STACK TRACE AND SOURCE CONTEXT
+|   +-- Application file path
+|   +-- Controller / middleware / route clues
+|   +-- Source snippet and line reference
+|
++-- 3. REQUEST AND APPLICATION CONTEXT
+|   +-- HTTP method and route
+|   +-- Request metadata (if rendered)
+|   +-- Environment / runtime details (if rendered)
+|
++-- 4. SENSITIVE INFORMATION DISCLOSURE
+|   +-- Credential or token (only if visibly exposed)
+|   +-- Personal or business data (if present)
+|   +-- Configuration values (classify sensitivity)
+|
++-- 5. COMPONENT VERSION REVIEW
+|   +-- Identify exact Ignition package
+|   +-- Verify installed version and dependency tree
+|   +-- Compare with relevant security advisories
+|
++-- 6. SPECIFIC COMPONENT VULNERABILITY
+    +-- Verify CVE applicability and prerequisites
+    +-- Confirm patch status
+    +-- Assess impact within authorized scope</pre>
+<div class="callout">Peta ini sengaja memisahkan “informasi yang terlihat” dari “vulnerability komponen”. Stack trace disclosure dapat menjadi temuan tersendiri walaupun tidak ada CVE pada Ignition yang terpasang.</div>
+</section>
+<section class="section" id="cross"><div class="kicker">12 / Cross-Technique Relationships</div><h2>Hubungan dengan Teknik Lain</h2>
+<div class="table-wrap"><table><thead><tr><th>Temuan dari Ignition</th><th>Halaman terkait</th><th>Hubungan konseptual</th></tr></thead><tbody>
+<tr><td>Source path, controller, route, atau code snippet</td><td><a href="source-leak.html">Source Leak</a></td><td>Informasi dapat memberi petunjuk untuk code review; source leak dan debug disclosure tetap dua sumber temuan berbeda.</td></tr>
+<tr><td>Path atau nama file internal</td><td><a href="lfi.html">Local File Inclusion</a></td><td>Path dapat menjadi konteks untuk memahami struktur file. Path disclosure tidak otomatis berarti file dapat dibaca melalui LFI.</td></tr>
+<tr><td>Database exception atau query context</td><td><a href="sqli.html">SQL Injection</a></td><td>Error database dapat menjadi petunjuk untuk meninjau query handling. Exception saja bukan bukti SQLi.</td></tr>
+<tr><td>Debug page pada endpoint logout</td><td><a href="laravel-logout-leak.html">Laravel Logout Leak</a></td><td>Logout Leak adalah istilah deskriptif ZeroHitman untuk pola error disclosure pada konteks logout; dapat menggunakan halaman exception Laravel sebagai sumber informasi.</td></tr>
+</tbody></table></div>
+<p>Relasi di atas bersifat kontekstual. Sebuah petunjuk hanya membuka pertanyaan investigasi; hubungan harus diuji berdasarkan bukti dan kontrol akses yang berlaku.</p>
+</section>
+<section class="section" id="assessment"><div class="kicker">13 / Assessment Method</div><h2>Cara Menilai Temuan Ignition</h2>
+<ol><li><strong>Catat konteks:</strong> URL/route yang diuji, waktu, status autentikasi, dan kondisi pengujian yang diizinkan.</li><li><strong>Identifikasi komponen:</strong> pastikan apakah halaman benar-benar Ignition dan, jika dapat diverifikasi, package serta versinya.</li><li><strong>Klasifikasikan informasi:</strong> pisahkan path, source context, version, request data, dan secret.</li><li><strong>Uji keterpaparan:</strong> tentukan apakah informasi terlihat oleh role yang tidak semestinya, tanpa mengakses atau menyebarkan data yang tidak diperlukan.</li><li><strong>Periksa advisory:</strong> cocokkan package dan versi dengan advisory yang relevan, lalu verifikasi patch.</li><li><strong>Nilai dampak:</strong> jelaskan apa yang benar-benar terbukti, apa yang hanya kemungkinan, dan prasyarat yang belum diketahui.</li><li><strong>Dokumentasikan dengan aman:</strong> redaksi secret, token, data pribadi, serta informasi internal pada screenshot dan laporan.</li></ol>
+<div class="callout good"><strong>Prinsip laporan:</strong> tuliskan bukti aktual dan batasan pengujian. Jangan mengklaim RCE hanya karena menemukan Ignition, debug mode, atau versi yang tampak lama.</div>
+</section>
+<section class="section" id="mitigation"><div class="kicker">14 / Mitigation</div><h2>Mitigasi dan Pencegahan</h2>
+<ul><li>Matikan debug mode pada production dan pastikan konfigurasi efektif sesuai rekomendasi Laravel.</li><li>Gunakan error handling yang menampilkan pesan umum kepada pengguna, sementara detail diagnostik disimpan pada log server yang aksesnya dibatasi.</li><li>Perbarui Laravel dan package Ignition ke versi yang masih didukung serta sudah menerima security fixes.</li><li>Audit dependency menggunakan Composer lockfile dan proses dependency review.</li><li>Batasi akses ke staging, panel debug, log, dan error-sharing service.</li><li>Jangan memasukkan secret, token, password, atau data pribadi ke dalam exception message maupun debug context.</li><li>Jika secret terlanjur terekspos, lakukan rotation/revocation dan evaluasi akses yang mungkin telah terjadi.</li><li>Pastikan screenshot, ticket, dan laporan tidak menyebarkan nilai sensitif.</li></ul>
+<p>Rujukan konfigurasi: <a href="https://laravel.com/docs/11.x/errors" target="_blank" rel="noopener">Laravel Error Handling Documentation</a> dan <a href="https://flareapp.io/docs/laravel/older-packages/ignition" target="_blank" rel="noopener">Ignition Documentation</a>.</p>
+</section>
+<section class="section" id="summary"><div class="kicker">15 / ZeroHitman Summary</div><h2>Kesimpulan</h2>
+<p>Laravel Ignition sebaiknya dipahami sebagai alat debugging yang dapat menjadi sumber informasi ketika detail exception terekspos. Nilai investigasinya terletak pada informasi yang benar-benar tersedia: exception, stack trace, path, source context, request, environment, dan versi komponen.</p>
+<p>Namun, pembaca harus membedakan tiga hal: halaman error, information disclosure, dan vulnerability spesifik pada package. CVE-2021-3129 adalah contoh vulnerability komponen yang memiliki prasyarat versi dan konfigurasi tersendiri; bukan konsekuensi otomatis dari setiap halaman Ignition.</p>
+<div class="callout"><strong>ZeroHitman mindset:</strong> gunakan informasi yang ditemukan untuk membentuk hipotesis berikutnya. Klasifikasikan bukti, periksa kondisi, lalu hubungkan ke teknik lain hanya jika relasinya masuk akal dan dapat diverifikasi.</div>
+</section>
+<section class="section" id="references"><div class="kicker">16 / References</div><h2>Referensi</h2>
+<ul class="source-list">
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-3129" target="_blank" rel="noopener">NIST National Vulnerability Database — CVE-2021-3129</a></li>
+<li><a href="https://github.com/advisories/GHSA-4qwp-7c67-jmcc" target="_blank" rel="noopener">GitHub Advisory Database — GHSA-4qwp-7c67-jmcc</a></li>
+<li><a href="https://github.com/facade/ignition" target="_blank" rel="noopener">Facade Ignition — GitHub Repository</a></li>
+<li><a href="https://github.com/spatie/laravel-ignition" target="_blank" rel="noopener">Spatie Laravel Ignition — GitHub Repository</a></li>
+<li><a href="https://flareapp.io/docs/laravel/older-packages/ignition" target="_blank" rel="noopener">Flare — Ignition Documentation</a></li>
+<li><a href="https://freek.dev/1441-ignition-a-new-error-page-for-laravel" target="_blank" rel="noopener">Freek Van der Herten — Ignition: a new error page for Laravel</a></li>
+<li><a href="https://freek.dev/2168-ignition-the-most-beautiful-error-page-for-laravel-and-php-got-a-major-redesign" target="_blank" rel="noopener">Freek Van der Herten — Ignition redesign</a></li>
+<li><a href="https://laravel.com/docs/11.x/errors" target="_blank" rel="noopener">Laravel — Error Handling</a></li>
+<li><a href="https://laravel.com/docs/11.x/deployment#nginx" target="_blank" rel="noopener">Laravel — Deployment (Web Server / Document Root)</a></li>
+</ul>
+<p class="small">Materi ini merupakan referensi edukasi dan dokumentasi keamanan. Pemeriksaan harus dilakukan hanya pada sistem yang dimiliki atau memiliki izin tertulis.</p>
+</section>
+<footer class="footer"><span>ZeroHitman Documentation · Laravel Ignition</span><div class="next-links"><a href="tree.html">← Kembali ke Tree</a><a href="laravel-logout-leak.html">Berikutnya: Logout Leak →</a></div></footer>
+</div></div>
+</main>
+</body>
+</html>

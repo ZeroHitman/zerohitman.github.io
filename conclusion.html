@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Kesimpulan ZeroHitman: kumpulkan dan klasifikasikan informasi, pahami fondasi vulnerability, gunakan CVE dan exploit sebagai referensi sesuai kondisi, dan ikuti bukti selama investigasi yang berizin.">
+<meta name="theme-color" content="#0a0e1a">
+<title>Conclusion — ZeroHitman Documentation</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#111827;--panel2:#0d1422;--line:#263244;--line2:#3a4a60;--text:#e5e7eb;--muted:#a5b2c3;--dim:#748397;--cyan:#22d3ee;--blue:#60a5fa;--green:#4ade80;--gold:#fbbf24;--orange:#fb923c;--red:#f87171;--purple:#c4b5fd;--radius:15px;--max:1120px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.72 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline;color:#a5f3fc}.wrap{width:min(var(--max),calc(100% - 36px));margin:auto}.topbar{position:sticky;top:0;z-index:20;background:rgba(10,14,26,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.topinner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.04em;color:var(--text)}.brand img{width:38px;height:38px;object-fit:contain}.brand small{display:block;color:var(--cyan);font-size:10px;letter-spacing:.12em}.toplinks{display:flex;gap:16px;flex-wrap:wrap;font-size:13px}.hero{padding:78px 0 58px;background:radial-gradient(ellipse at 50% 0,rgba(34,211,238,.15),transparent 58%),radial-gradient(ellipse at 100% 55%,rgba(167,139,250,.08),transparent 42%);border-bottom:1px solid var(--line)}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(38px,6vw,66px);line-height:1.08;letter-spacing:-.045em;margin:14px 0}.hero p{max-width:820px;color:var(--muted);font-size:18px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.chip{border:1px solid var(--line2);background:rgba(17,24,39,.7);padding:5px 10px;border-radius:999px;color:#cbd5e1;font-size:12px}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:34px;padding:36px 0 70px}.toc{position:sticky;top:88px;align-self:start;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);padding:18px}.toc h2{font-size:12px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin:0 0 12px}.toc a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:13px}.toc a:hover{background:#172235;color:var(--text);text-decoration:none}.content{min-width:0}.section{margin:0 0 48px;scroll-margin-top:88px}.section h2{font-size:27px;line-height:1.25;letter-spacing:-.02em;margin:0 0 15px}.section h3{font-size:19px;margin:27px 0 9px;color:#dbeafe}.section p{color:#c5cfdd;margin:10px 0}.lead{font-size:18px;color:#dbeafe!important}.kicker{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:18px 0}.card h3:first-child{margin-top:0}.callout{border-left:3px solid var(--cyan);background:rgba(34,211,238,.07);padding:15px 18px;border-radius:0 10px 10px 0;margin:18px 0;color:#d6e4ef}.callout.warn{border-color:var(--gold);background:rgba(251,191,36,.07)}.callout.good{border-color:var(--green);background:rgba(74,222,128,.07)}.callout.purple{border-color:var(--purple);background:rgba(167,139,250,.07)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.mini{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px}.mini h3{margin:0 0 7px;font-size:17px;color:var(--cyan)}.mini p{margin:0;color:var(--muted);font-size:14px}.number{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line2);color:var(--cyan);font-size:12px;font-weight:800;margin-right:7px}.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0}.flow article{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0}.flow article:not(:last-child):after{content:"→";position:absolute;right:-12px;top:40%;z-index:2;color:var(--cyan);font-weight:900}.flow b{display:block;color:var(--cyan);margin-bottom:5px}.flow span{display:block;color:var(--muted);font-size:13px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:16px 0}table{width:100%;border-collapse:collapse;min-width:650px;background:var(--panel);font-size:14px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.06em;background:#131e30}td{color:#cbd5e1}tr:last-child td{border-bottom:0}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#a5f3fc;background:#07111e;border:1px solid #1c3346;border-radius:5px;padding:1px 5px;font-size:.92em}pre{overflow:auto;background:#070d17;border:1px solid var(--line);border-radius:12px;padding:17px;color:#cbd5e1;font-size:13px;line-height:1.65}.tree{white-space:pre;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.branch{color:var(--cyan)}.leaf{color:var(--green)}.quote{padding:26px;border:1px solid rgba(34,211,238,.3);border-radius:16px;background:linear-gradient(145deg,rgba(34,211,238,.09),rgba(17,24,39,.9));margin:22px 0}.quote .big{font-size:clamp(24px,3.6vw,38px);line-height:1.2;letter-spacing:-.03em;font-weight:850;color:#e6fbff}.quote p{font-size:16px;color:#cbd5e1}.steps{counter-reset:n;list-style:none;padding:0}.steps li{counter-increment:n;position:relative;padding:0 0 18px 44px;color:#cbd5e1}.steps li:before{content:counter(n);position:absolute;left:0;top:0;width:29px;height:29px;display:grid;place-items:center;border:1px solid var(--line2);border-radius:50%;color:var(--cyan);font-weight:800;font-size:12px}.footer{border-top:1px solid var(--line);padding:28px 0 42px;color:var(--dim);font-size:13px}.footerrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:28px}.next a{border:1px solid var(--line);border-radius:10px;padding:11px 15px;background:var(--panel);font-size:14px}.backtop{position:fixed;right:18px;bottom:18px;background:#123040;border:1px solid #1d6071;color:#a5f3fc;border-radius:50%;width:42px;height:42px;display:grid;place-items:center;font-size:20px}
+@media(max-width:850px){.layout{grid-template-columns:1fr;gap:20px}.toc{position:relative;top:auto;max-height:none}.topinner{align-items:flex-start;padding:12px 0;flex-direction:column}.toplinks{gap:10px}.hero{padding:52px 0 38px}.grid{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,minmax(0,1fr))}.flow article:nth-child(2):after{display:none}}
+@media(max-width:560px){.wrap{width:min(100% - 24px,var(--max))}.toplinks{font-size:12px}.section h2{font-size:23px}.card{padding:15px}.flow{grid-template-columns:1fr}.flow article:after{display:none!important}}
+@media print{body{background:#fff;color:#111}.topbar,.toc,.backtop{display:none}.layout{display:block}.section{break-inside:avoid}.section p,td,li{color:#222}.hero{background:#fff}.hero h1,.hero p{color:#111}.card,.mini,.quote{background:#fff;color:#111;border-color:#aaa}}
+</style>
+  <link rel="canonical" href="https://zerohitman.github.io/conclusion.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+</head>
+<body id="top">
+<header class="topbar"><div class="wrap topinner">
+<a class="brand" href="index.html"><img src="hitman.png" alt="ZeroHitman logo"><span>ZEROHITMAN<small>SECURITY RESEARCH DOCUMENTATION</small></span></a>
+<nav class="toplinks" aria-label="Navigasi utama"><a href="index.html">Home</a><a href="tree.html">Investigation Tree</a><a href="sqli.html">SQLi</a><a href="lfi.html">LFI</a><a href="source-leak.html">Source Leak</a></nav>
+</div></header>
+<section class="hero"><div class="wrap">
+<div class="eyebrow">ZeroHitman / Final Chapter</div>
+<h1>Conclusion</h1>
+<p>Semua teknik yang dibahas sebelumnya mengarah pada satu fondasi: kemampuan mengumpulkan informasi, memahami artinya, memilah bukti, dan menentukan langkah investigasi berdasarkan kondisi yang benar-benar ditemukan.</p>
+<div class="chips"><span class="chip">Investigation Mindset</span><span class="chip">Information Analysis</span><span class="chip">Fundamentals over Memorization</span><span class="chip">Evidence-Based Research</span></div>
+</div></section>
+<main class="wrap layout">
+<aside class="toc"><h2>Daftar Isi</h2><nav>
+<a href="#objective">01. Tujuan Sebenarnya</a><a href="#gather">02. Information Gathering</a><a href="#classify">03. Klasifikasi Informasi</a><a href="#fundamentals">04. Pahami Fondasi</a><a href="#cve">05. CVE sebagai Referensi</a><a href="#exploit">06. Exploit sebagai Alat</a><a href="#conditions">07. Berpikir Berdasarkan Kondisi</a><a href="#chain">08. Satu Temuan, Banyak Arah</a><a href="#workflow">09. Siklus Investigasi</a><a href="#ethics">10. Batas dan Tanggung Jawab</a><a href="#final">11. Pesan Terakhir</a>
+</nav></aside>
+<div class="content">
+<section class="section" id="objective"><div class="kicker">01 / The Real Objective</div><h2>Tujuan Sebenarnya Bukan Menghafal Teknik</h2>
+<p class="lead">Inti dari seluruh teknik dasar dalam ZeroHitman bukanlah menghafal sebanyak mungkin payload, CVE, atau exploit. Intinya adalah memahami dasar kerentanan dan mampu mengumpulkan serta menganalisis informasi yang tersedia.</p>
+<p>Dalam investigasi keamanan, satu informasi awal bisa sangat terbatas. Misalnya, hanya ada satu username dan password yang diberikan dalam ruang lingkup pengujian resmi. Informasi itu belum menjelaskan seluruh kondisi aplikasi. Ia hanya menjadi titik awal untuk memahami sistem, memeriksa konteks akses yang diizinkan, dan menentukan pertanyaan berikutnya.</p>
+<p>Karena itu, peneliti tidak seharusnya terpaku pada satu teknik atau satu jalur yang sudah dihafal. Arah investigasi perlu berkembang mengikuti bukti, karakter aplikasi, konfigurasi, teknologi, dan batas kewenangan yang berlaku.</p>
+<div class="callout"><strong>Prinsip utama:</strong> jangan mulai dengan asumsi bahwa sebuah teknik pasti berhasil. Mulailah dengan informasi yang tersedia, pahami apa yang benar-benar dibuktikan oleh informasi tersebut, lalu tentukan apa yang layak diperiksa berikutnya.</div>
+</section>
+<section class="section" id="gather"><div class="kicker">02 / Information Gathering</div><h2>Kumpulkan Informasi yang Relevan</h2>
+<p>Information Gathering adalah proses memperoleh konteks tentang aplikasi dan lingkungannya. Informasi dapat berasal dari perilaku aplikasi, response HTTP, pesan error, dokumentasi, konfigurasi yang memang dapat diakses dalam scope, source code yang diberikan, atau hasil pengujian yang telah diizinkan.</p>
+<div class="grid">
+<article class="mini"><h3>Application Information</h3><p>Teknologi, framework, route, fitur, alur autentikasi, jenis input, dan perilaku aplikasi.</p></article>
+<article class="mini"><h3>Infrastructure Information</h3><p>Web server, konfigurasi virtual host, domain dan IP, service yang relevan, serta pemisahan environment.</p></article>
+<article class="mini"><h3>Database Information</h3><p>Jenis DBMS, pola interaksi aplikasi dengan database, dan batas privilege yang dapat dibuktikan.</p></article>
+<article class="mini"><h3>Source & Dependency Information</h3><p>Struktur source, repository, versi library, konfigurasi, dan riwayat perubahan jika tersedia secara sah.</p></article>
+<article class="mini"><h3>Identity & Access Information</h3><p>Peran akun, batas izin, sesi, serta perbedaan akses yang memang diizinkan untuk diuji.</p></article>
+<article class="mini"><h3>Observed Behavior</h3><p>Status code, response, exception, perbedaan perilaku, dan kondisi saat suatu fungsi dijalankan.</p></article>
+</div>
+<p>Informasi yang terkumpul tidak harus langsung menunjukkan vulnerability. Informasi tersebut bisa menjadi konteks untuk memahami sistem atau membantu menyingkirkan dugaan yang tidak sesuai.</p>
+<div class="callout warn"><strong>Kuantitas bukan tujuan tunggal.</strong> “Mengumpulkan sebanyak mungkin” berarti tidak melewatkan informasi relevan yang tersedia dalam scope, bukan mengambil data pribadi, rahasia, atau isi sistem tanpa kebutuhan dan izin.</div>
+</section>
+<section class="section" id="classify"><div class="kicker">03 / Information Classification</div><h2>Pilah Informasi: Penting, Tidak Relevan, atau Belum Terbukti</h2>
+<p>Setelah informasi dikumpulkan, langkah berikutnya adalah mengelompokkannya. Tidak semua temuan memiliki nilai yang sama dan tidak semua petunjuk merupakan bukti vulnerability.</p>
+<div class="table-wrap"><table><thead><tr><th>Kategori</th><th>Makna</th><th>Contoh cara memperlakukannya</th></tr></thead><tbody>
+<tr><td><strong>Relevant Evidence</strong></td><td>Informasi yang berkaitan langsung dengan sistem atau pertanyaan investigasi.</td><td>Catat sumber, konteks, waktu, dan hubungan dengan temuan lain.</td></tr>
+<tr><td><strong>Potential Lead</strong></td><td>Petunjuk yang layak diteliti, tetapi belum membuktikan kerentanan.</td><td>Tentukan bukti tambahan yang diperlukan sebelum menarik kesimpulan.</td></tr>
+<tr><td><strong>Verified Finding</strong></td><td>Kondisi yang telah dibuktikan melalui pemeriksaan yang sah dan terukur.</td><td>Dokumentasikan langkah, hasil, dampak, serta batas validasinya.</td></tr>
+<tr><td><strong>Noise / Not Relevant</strong></td><td>Informasi yang tidak membantu menjawab pertanyaan atau tidak terkait dengan scope.</td><td>Simpan seperlunya sebagai catatan, tetapi jangan biarkan mengalihkan investigasi.</td></tr>
+<tr><td><strong>Unknown / Unverified</strong></td><td>Informasi yang sumber, keakuratan, atau maknanya belum dapat dipastikan.</td><td>Tandai sebagai belum terverifikasi; jangan perlakukan sebagai fakta.</td></tr>
+</tbody></table></div>
+<p>Pemilahan ini mencegah dua kesalahan: mengabaikan petunjuk yang mungkin berguna, dan membesar-besarkan petunjuk seolah-olah sudah menjadi bukti eksploitasi.</p>
+</section>
+<section class="section" id="fundamentals"><div class="kicker">04 / Understand, Don't Memorize</div><h2>Pahami Fondasi, Bukan Sekadar Menghafal Payload</h2>
+<p>Setiap vulnerability memiliki akar masalah, mekanisme, prasyarat, batasan, dan dampak. Memahami bagian-bagian tersebut jauh lebih berguna daripada hanya mengingat satu contoh payload yang mungkin tidak cocok dengan kondisi lain.</p>
+<div class="grid">
+<article class="mini"><h3>Root Cause</h3><p>Mengapa kelemahan itu terjadi? Misalnya, pemisahan data dan instruksi yang tidak aman atau kontrol akses yang tidak memadai.</p></article>
+<article class="mini"><h3>Mechanism</h3><p>Bagaimana aplikasi, framework, server, atau database memproses kondisi yang menimbulkan kelemahan?</p></article>
+<article class="mini"><h3>Preconditions</h3><p>Versi, konfigurasi, privilege, input, akses, atau kondisi apa yang harus ada agar dampak tertentu mungkin terjadi?</p></article>
+<article class="mini"><h3>Impact & Limitation</h3><p>Apa yang benar-benar dapat dibuktikan, apa dampak potensialnya, dan apa yang tidak dapat disimpulkan dari bukti itu?</p></article>
+</div>
+<p>Contohnya, memahami SQL Injection berarti memahami bagaimana input dapat mengubah struktur query, bagaimana DBMS memproses query, dan bagaimana privilege memengaruhi dampak. Menghafal satu payload saja tidak menjelaskan semua hal tersebut.</p>
+<p>Hal yang sama berlaku untuk LFI, Source Leak, debug disclosure, dan salah konfigurasi Document Root. Nama teknik membantu mengelompokkan temuan; pemahaman mekanisme membantu menilainya.</p>
+</section>
+<section class="section" id="cve"><div class="kicker">05 / CVE Is a Reference, Not a Strategy</div><h2>CVE adalah Referensi, Bukan Strategi Investigasi</h2>
+<p>CVE berguna untuk mengidentifikasi dan merujuk vulnerability yang telah diberi identifier. Namun, menghafal banyak nomor CVE tidak otomatis membuat seseorang mampu menentukan apakah sebuah aplikasi terdampak.</p>
+<p>Gunakan CVE ketika informasi yang ditemukan membuat pencarian tersebut relevan. Misalnya, sudah ada indikasi framework atau dependency tertentu, versi yang dapat diverifikasi, dan fitur atau konfigurasi yang sesuai dengan deskripsi vulnerability.</p>
+<div class="callout good"><strong>Pendekatan yang lebih tepat:</strong> identifikasi teknologi dan versi → pahami kondisi vulnerability → cocokkan prasyarat → periksa bukti yang tersedia → simpulkan apakah CVE relevan atau tidak.</div>
+<p>Versi yang terlihat belum tentu cukup untuk menyatakan aplikasi rentan. Backport patch, perubahan vendor, konfigurasi, komponen yang tidak digunakan, dan kondisi deployment dapat memengaruhi hasil. Karena itu, CVE harus dibaca sebagai referensi teknis, bukan label otomatis untuk sebuah target.</p>
+</section>
+<section class="section" id="exploit"><div class="kicker">06 / Exploit Is a Tool, Not Knowledge</div><h2>Exploit adalah Alat Bantu, Bukan Pengganti Pemahaman</h2>
+<p>Exploit atau proof of concept dapat membantu memvalidasi kondisi tertentu, tetapi keberadaan exploit publik tidak membuktikan bahwa exploit tersebut cocok untuk setiap aplikasi dengan nama produk yang sama.</p>
+<p>Sebelum menganggap sebuah exploit relevan, pahami target versi dan konfigurasi, dependensi, prasyarat, efek samping, serta batas penggunaan yang diizinkan. Referensi yang tidak cocok dapat menghasilkan kesimpulan keliru atau mengganggu sistem.</p>
+<div class="table-wrap"><table><thead><tr><th>Hafalan semata</th><th>Pemahaman yang dibutuhkan</th></tr></thead><tbody>
+<tr><td>Mengingat nama exploit.</td><td>Mengetahui vulnerability dan kondisi yang menjadi dasar exploit.</td></tr>
+<tr><td>Menyimpan banyak PoC.</td><td>Mampu menilai apakah PoC sesuai versi, konfigurasi, dan scope.</td></tr>
+<tr><td>Menjalankan tool karena tersedia.</td><td>Memahami tujuan validasi, risiko, dan bukti minimum yang diperlukan.</td></tr>
+<tr><td>Menganggap output tool sebagai kebenaran.</td><td>Memeriksa ulang hasil, false positive, false negative, dan konteks.</td></tr>
+</tbody></table></div>
+<p>Memiliki koleksi referensi tentu boleh dan dapat menghemat waktu. Yang tidak boleh terjadi adalah menjadikan koleksi tersebut sebagai pengganti pemahaman teknis.</p>
+</section>
+<section class="section" id="conditions"><div class="kicker">07 / Think Based on Conditions</div><h2>Berpikir Berdasarkan Kondisi yang Ditemukan</h2>
+<p>Teknik yang sama dapat menghasilkan dampak berbeda pada sistem yang berbeda. Sebaliknya, informasi yang sama dapat membuka beberapa pertanyaan investigasi, bergantung pada teknologi dan konfigurasi yang ditemukan.</p>
+<div class="card"><h3>Contoh hubungan antar-informasi</h3><pre class="tree"><span class="branch">Informasi awal</span>
+    |
+    +-- Teknologi dan versi teridentifikasi
+    |       +-- Periksa dokumentasi dan CVE yang relevan
+    |       +-- Cocokkan patch, konfigurasi, dan prasyarat
+    |
+    +-- Source / repository tersedia secara sah
+    |       +-- Pahami alur input dan pemrosesan data
+    |       +-- Tinjau konfigurasi dan dependency
+    |       +-- Catat kandidat kelemahan untuk divalidasi
+    |
+    +-- Error / exception memberikan informasi
+    |       +-- Klasifikasikan stack trace, path, dan secret
+    |       +-- Bedakan error biasa dari disclosure
+    |
+    +-- Konfigurasi web server menunjukkan perbedaan
+            +-- Pahami domain, IP, dan VirtualHost
+            +-- Nilai apakah ada exposure yang benar-benar terbukti
+
+<span class="leaf">Setiap cabang bergantung pada bukti, kondisi, dan izin pengujian.</span></pre></div>
+<p>Contoh tersebut bukan urutan wajib dan bukan jaminan bahwa satu temuan akan berujung pada vulnerability lain. Ia menunjukkan cara menggunakan informasi untuk membentuk pertanyaan lanjutan yang masuk akal.</p>
+</section>
+<section class="section" id="chain"><div class="kicker">08 / One Finding, Multiple Directions</div><h2>Satu Temuan Dapat Membuka Banyak Arah Investigasi</h2>
+<p>Inilah alasan ZeroHitman menggunakan Tree dan hubungan antar-teknik. Sebuah temuan tidak selalu berdiri sendiri. Ia dapat memberi konteks untuk menilai temuan lain, tetapi hubungan tersebut harus diuji, bukan diasumsikan.</p>
+<div class="grid">
+<article class="mini"><h3><a href="sqli.html">SQL Injection</a></h3><p>Memahami root cause query, DBMS, privilege, serta batas dampak seperti disclosure atau perubahan data.</p></article>
+<article class="mini"><h3><a href="lfi.html">Local File Inclusion</a></h3><p>Memahami pemilihan file, path, konteks pemrosesan, dan perbedaan file disclosure dengan code execution.</p></article>
+<article class="mini"><h3><a href="source-leak.html">Source Leak</a></h3><p>Memanfaatkan source dan repository yang memang tersedia dalam scope untuk memahami alur aplikasi, konfigurasi, dan dependency.</p></article>
+<article class="mini"><h3><a href="laravel-ignition.html">Laravel Ignition</a></h3><p>Membedakan debugging interface, information disclosure, CVE spesifik, dan salah konfigurasi Document Root.</p></article>
+<article class="mini"><h3><a href="laravel-logout-leak.html">Laravel Logout Leak</a></h3><p>Memisahkan pemicu HTTP error dari exception rendering dan informasi internal yang mungkin terekspos.</p></article>
+<article class="mini"><h3><a href="tree.html">Investigation Tree</a></h3><p>Melihat hubungan antarcabang dan menggunakannya sebagai peta saat menentukan arah pemeriksaan berikutnya.</p></article>
+</div>
+<div class="callout"><strong>Jangan memaksakan chain.</strong> SQLi tidak otomatis menjadi RCE. LFI tidak otomatis menjadi code execution. Source Leak tidak otomatis berarti server dapat diakses. Hubungan antarteknik adalah hipotesis investigasi yang harus didukung kondisi dan bukti.</div>
+</section>
+<section class="section" id="workflow"><div class="kicker">09 / Investigation Loop</div><h2>Siklus Berpikir dalam Investigasi</h2>
+<p>Daripada menghafal satu urutan serangan, gunakan siklus berpikir yang dapat berulang ketika informasi baru ditemukan.</p>
+<div class="flow"><article><b>01 · Observe</b><span>Amati sistem dan kumpulkan informasi dalam scope.</span></article><article><b>02 · Classify</b><span>Pilah fakta, petunjuk, noise, dan hal yang belum terverifikasi.</span></article><article><b>03 · Understand</b><span>Pahami mekanisme dan kondisi teknis yang relevan.</span></article><article><b>04 · Research</b><span>Cari dokumentasi, CVE, advisory, atau PoC yang sesuai.</span></article></div>
+<div class="flow"><article><b>05 · Validate</b><span>Uji secara minimal, aman, dan sesuai izin.</span></article><article><b>06 · Assess</b><span>Nilai dampak nyata dan batas bukti.</span></article><article><b>07 · Record</b><span>Catat temuan, sumber, dan tingkat keyakinan.</span></article><article><b>08 · Re-evaluate</b><span>Tentukan apakah bukti baru mengubah arah investigasi.</span></article></div>
+<p>Siklus ini tidak harus berjalan lurus. Hasil validasi dapat menunjukkan bahwa dugaan awal salah, sehingga peneliti perlu kembali mengumpulkan informasi atau mengubah hipotesis. Berhenti juga merupakan keputusan yang benar ketika tidak ada bukti lanjutan, scope berakhir, atau risiko pengujian tidak dapat diterima.</p>
+</section>
+<section class="section" id="ethics"><div class="kicker">10 / Scope and Responsibility</div><h2>Informasi, Bukti, dan Batas Tanggung Jawab</h2>
+<p>Investigasi yang baik bukan tentang mengambil sebanyak mungkin data tanpa batas. Pengumpulan dan validasi harus tetap sesuai otorisasi, tujuan, serta ruang lingkup yang disepakati.</p>
+<ul>
+<li>Jangan mengakses, menyalin, atau menyimpan data pribadi dan rahasia yang tidak diperlukan untuk membuktikan temuan.</li>
+<li>Gunakan validasi minimum yang cukup untuk menunjukkan kondisi dan dampak.</li>
+<li>Jangan mengubah data, membuat persistence, atau mengganggu layanan kecuali secara eksplisit diizinkan dalam scope dan prosedur pengujian.</li>
+<li>Redaksi credential, token, APP_KEY, data personal, dan detail internal pada screenshot serta laporan.</li>
+<li>Bedakan fakta yang diamati, hipotesis, hasil validasi, dan dampak potensial.</li>
+<li>Laporkan temuan dengan bukti yang dapat ditinjau ulang dan rekomendasi perbaikan yang jelas.</li>
+</ul>
+<div class="callout good"><strong>Hasil investigasi yang baik:</strong> bukan laporan dengan klaim paling besar, melainkan laporan yang akurat, dapat diverifikasi, proporsional terhadap bukti, dan membantu pemilik sistem memperbaiki risiko.</div>
+</section>
+<section class="section" id="final"><div class="kicker">11 / Final Message</div><h2>Pesan Terakhir dari Penulis</h2>
+<div class="quote">
+<div class="big">Knowledge over Memorization.<br>Understand the Fundamentals. Follow the Evidence.</div>
+<p>Kamu tidak harus menghafal setiap CVE. Kamu tidak harus mengumpulkan ribuan exploit. Dan kamu tidak harus mengetahui semua vulnerability yang pernah ditemukan.</p>
+<p>Yang paling penting adalah memahami bagaimana vulnerability bekerja, mengapa ia terjadi, dan kondisi apa yang membuatnya mungkin.</p>
+<p>Kumpulkan informasi yang relevan. Analisis apa yang kamu temukan. Pisahkan bukti penting dari noise. Biarkan setiap temuan membantu menentukan pertanyaan investigasi berikutnya.</p>
+<p>Ketika menemukan teknologi atau vulnerability yang belum kamu pahami, pelajari. Ketika CVE menjadi relevan, jadikan ia referensi. Ketika exploit diperlukan dan diizinkan, pahami prasyarat serta risikonya sebelum menggunakannya.</p>
+<div class="big" style="font-size:clamp(22px,3vw,32px);margin-top:22px;color:#fff">Tujuannya bukan menghafal semua kemungkinan serangan.<br>Tujuannya adalah mengetahui cara menyelidiki apa yang kamu temukan.</div>
+<p style="margin-top:22px;color:var(--gold);font-weight:800">— zerohitman</p>
+</div>
+<p>Gunakan <a href="tree.html">Investigation Tree</a> sebagai peta, halaman teknik sebagai referensi untuk memahami fondasi, dan dokumentasi eksternal sebagai sumber tambahan ketika kondisi nyata membutuhkannya. Tidak ada satu peta yang dapat menggantikan penilaian teknis; peta hanya membantu kita tidak kehilangan arah.</p>
+</section>
+<footer class="footer"><div class="footerrow"><span><strong>ZeroHitman</strong> — Security Research Documentation</span><span>Final Chapter · Written by zerohitman</span></div><div class="next"><a href="tree.html">← Kembali ke Investigation Tree</a><a href="index.html">Kembali ke Home ↑</a></div></footer>
+</div></main>
+<a class="backtop" href="#top" aria-label="Kembali ke atas">↑</a>
+</body>
+</html>

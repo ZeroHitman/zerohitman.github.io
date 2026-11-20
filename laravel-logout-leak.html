@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ZeroHitman: memahami istilah Logout Leak, MethodNotAllowedHttpException, Laravel debug exception disclosure, stack trace, environment variables, dan penilaian dampaknya.">
+<meta name="theme-color" content="#080d18">
+<title>Laravel Logout Leak — ZeroHitman Documentation</title>
+<link rel="stylesheet" href="assets/css/docs.css">
+<style>
+.hero{padding-top:54px}.hero h1{max-width:920px}.notice{padding:13px 16px;border:1px solid #475569;border-radius:11px;background:#111827;color:#cbd5e1;font-size:14px}.definition{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.definition article{background:#101a2b;border:1px solid #24344b;border-radius:12px;padding:16px}.definition b{display:block;color:#22d3ee;margin-bottom:6px}.diagram{margin:20px 0;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px}.diagram img{display:block;width:100%;height:auto;max-height:760px;object-fit:contain}.diagram figcaption{color:#475569;font-size:13px;margin:10px 4px 2px}.tree{display:block;overflow-x:auto;white-space:pre;padding:16px;background:#07111f;border:1px solid #24344b;border-radius:10px;color:#cbd5e1;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}.kicker{color:#22d3ee;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}.callout.warn{border-left-color:#fbbf24;background:rgba(251,191,36,.07)}.callout.good{border-left-color:#4ade80;background:rgba(74,222,128,.06)}.callout.danger{border-left-color:#fb7185;background:rgba(251,113,133,.07)}.source-list li{margin:7px 0;overflow-wrap:anywhere}@media(max-width:850px){.definition{grid-template-columns:1fr}}
+</style>
+  <link rel="canonical" href="https://zerohitman.github.io/laravel-logout-leak.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="index.html"><img src="hitman.png" alt="ZeroHitman logo"><span>ZeroHitman<small>SECURITY RESEARCH DOCUMENTATION</small></span></a>
+<nav class="navlinks"><a href="tree.html">Investigation Tree</a><a href="sqli.html">SQLi</a><a href="lfi.html">LFI</a><a href="source-leak.html">Source Leak</a><a href="laravel-ignition.html">Ignition</a></nav>
+</div></header>
+<main class="wrap">
+<section class="hero">
+<div class="eyebrow">ZeroHitman / Technique Reference 06</div>
+<h1>Laravel Logout Leak</h1>
+<p>Mengenali pola ketika akses ke endpoint logout menghasilkan exception page yang membocorkan detail internal aplikasi. Materi ini menggunakan istilah “Logout Leak” sebagai nama deskriptif ZeroHitman, bukan sebagai nama vulnerability resmi Laravel.</p>
+<div class="pills"><span class="pill">Laravel</span><span class="pill">HTTP Method Handling</span><span class="pill">MethodNotAllowedHttpException</span><span class="pill">Debug Information Disclosure</span></div>
+</section>
+<div class="layout">
+<aside class="toc"><h2>Daftar Isi</h2><ol>
+<li><a href="#intro">Pengertian Logout Leak</a></li><li><a href="#meaning">Istilah dan Batasan</a></li><li><a href="#http">HTTP Method dan Logout Route</a></li><li><a href="#exception">MethodNotAllowedHttpException</a></li><li><a href="#screenshot">Membaca Screenshot</a></li><li><a href="#stack">Stack Trace</a></li><li><a href="#environment">Environment Disclosure</a></li><li><a href="#secrets">Jenis Informasi Sensitif</a></li><li><a href="#conditions">Kondisi Terjadinya Leak</a></li><li><a href="#impact">Dampak dan Batasan</a></li><li><a href="#branching">Peta Percabangan</a></li><li><a href="#cross">Cross-Technique</a></li><li><a href="#assessment">Penilaian Temuan</a></li><li><a href="#mitigation">Mitigasi</a></li><li><a href="#summary">Kesimpulan</a></li><li><a href="#references">Referensi</a></li>
+</ol></aside>
+<div class="content">
+<section class="section" id="intro"><div class="kicker">01 / Introduction</div><h2>Apa yang Dimaksud Laravel Logout Leak?</h2>
+<p class="lead"><strong>Logout Leak</strong> adalah istilah deskriptif yang digunakan dalam dokumentasi ZeroHitman untuk menggambarkan kondisi ketika permintaan ke endpoint logout memicu halaman exception Laravel yang menampilkan informasi internal aplikasi.</p>
+<p>Contoh yang dibahas di sini memperlihatkan endpoint <code>/logout</code> menerima atau diakses menggunakan HTTP method <code>GET</code>, sedangkan route tersebut hanya mendukung <code>POST</code>. Laravel menghasilkan <code>MethodNotAllowedHttpException</code>. Masalah keamanan yang perlu diperhatikan bukan semata-mata perbedaan method tersebut, melainkan detail exception yang kemudian ditampilkan kepada pengunjung.</p>
+<div class="callout"><strong>Inti pembedaan:</strong> HTTP 405 / Method Not Allowed merupakan respons atas method yang tidak didukung route. Ia bukan otomatis vulnerability. Kebocoran terjadi apabila halaman error yang menyertai respons tersebut mengungkap stack trace, path, environment variables, credential, atau informasi internal lain kepada pihak yang tidak berwenang.</div>
+</section>
+<section class="section" id="meaning"><div class="kicker">02 / Terminology</div><h2>Logout Leak Bukan Nama Vulnerability Resmi</h2>
+<p>Nama “Logout Leak” dibuat agar pola temuan ini mudah diingat dan dibahas di dalam Tree ZeroHitman. Dalam laporan formal, sebaiknya nama tersebut diterangkan dengan istilah teknis yang lebih spesifik, misalnya <strong>debug exception information disclosure on logout endpoint</strong>.</p>
+<div class="definition">
+<article><b>Trigger / Pemicu</b><p>Permintaan dengan HTTP method yang tidak sesuai terhadap route logout, misalnya GET ketika route hanya menerima POST.</p></article>
+<article><b>Exception</b><p>Framework menghasilkan MethodNotAllowedHttpException untuk menunjukkan method yang tidak didukung.</p></article>
+<article><b>Disclosure</b><p>Exception renderer menampilkan detail internal seperti stack trace atau environment context kepada klien.</p></article>
+<article><b>Impact</b><p>Dampaknya bergantung pada informasi yang benar-benar terekspos, keterjangkauan endpoint, dan apakah nilai sensitif masih aktif.</p></article>
+</div>
+<div class="callout warn"><strong>Jangan menyamakan trigger dan impact.</strong> Route yang hanya menerima POST adalah perilaku normal. Informasi disclosure merupakan kondisi tambahan yang harus dibuktikan secara terpisah.</div>
+</section>
+<section class="section" id="http"><div class="kicker">03 / HTTP Request</div><h2>HTTP Method dan Route Logout</h2>
+<p>HTTP method menyatakan jenis tindakan yang diminta oleh client. Aplikasi dapat mendefinisikan route tertentu hanya untuk method yang telah ditentukan. Pada banyak starter kit Laravel, logout menggunakan POST agar perubahan status autentikasi tidak dilakukan melalui navigasi GET biasa.</p>
+<div class="table-wrap"><table><thead><tr><th>Komponen</th><th>Contoh pada kasus</th><th>Makna</th></tr></thead><tbody>
+<tr><td>Path</td><td><code>/logout</code></td><td>Endpoint yang dituju oleh request.</td></tr>
+<tr><td>Request method</td><td><code>GET</code></td><td>Method yang digunakan oleh browser/client dalam screenshot.</td></tr>
+<tr><td>Allowed method</td><td><code>POST</code></td><td>Method yang dinyatakan didukung oleh route.</td></tr>
+<tr><td>HTTP result</td><td><code>405 Method Not Allowed</code></td><td>Route dikenali, tetapi method request tidak didukung.</td></tr>
+</tbody></table></div>
+<p>Perilaku route yang tepat tetap bergantung pada definisi route dan versi aplikasi. Karena itu, jangan menyimpulkan semua aplikasi Laravel memiliki aturan logout yang sama hanya dari satu screenshot.</p>
+</section>
+<section class="section" id="exception"><div class="kicker">04 / Exception Handling</div><h2>MethodNotAllowedHttpException</h2>
+<p>Laravel menggunakan routing layer untuk mencocokkan request dengan route aplikasi. Jika path cocok tetapi HTTP method tidak termasuk method yang diizinkan, proses routing dapat menghasilkan <code>MethodNotAllowedHttpException</code>. Pesan seperti “The GET method is not supported for this route. Supported methods: POST.” menjelaskan ketidaksesuaian tersebut.</p>
+<pre class="tree">Client Request
+     |
+     |  GET /logout
+     v
+Laravel Router
+     |
+     |  Route path ditemukan
+     |  GET tidak termasuk method yang diizinkan
+     v
+MethodNotAllowedHttpException
+     |
+     v
+Exception Handler / Renderer
+     |
+     +---- Production-safe response
+     |       -> Pesan umum, tanpa detail internal
+     |
+     +---- Debug detail ditampilkan
+             -> Stack trace / context dapat terlihat</pre>
+<div class="callout good"><strong>Catatan analisis:</strong> bagian yang menentukan risiko disclosure adalah bagaimana exception ditangani dan dirender. HTTP 405 sendiri tidak membuktikan adanya kebocoran.</div>
+</section>
+<section class="section" id="screenshot"><div class="kicker">05 / Case Study</div><h2>Membaca Screenshot Temuan</h2>
+<p>Screenshot berikut berasal dari contoh yang diberikan penulis. Nilai environment yang sensitif telah ditutup untuk mencegah penyebaran credential dan secret. Gambar ini menunjukkan pola tampilan yang dianalisis, bukan bukti bahwa seluruh informasi yang terlihat masih valid atau dapat digunakan.</p>
+<figure class="diagram"><img src="assets/images/laravel-logout-leak-redacted.png" alt="Screenshot Laravel exception page pada endpoint logout dengan nilai environment disamarkan"><figcaption>Contoh Laravel exception page pada route /logout. Bagian nilai environment disamarkan; nama variabel tetap terlihat agar struktur disclosure dapat dipelajari.</figcaption></figure>
+<h3>Bagian kiri: exception dan stack trace</h3>
+<ul><li>Terlihat exception <code>MethodNotAllowedHttpException</code>.</li><li>Pesan menyebutkan bahwa method GET tidak didukung dan method POST yang diterima.</li><li>Daftar frame menunjukkan alur pemrosesan request melalui komponen routing dan framework.</li><li>Path file internal dapat mengungkap struktur direktori aplikasi atau lokasi framework.</li></ul>
+<h3>Bagian kanan: Environment Variables</h3>
+<ul><li>Nama variabel seperti <code>APP_ENV</code>, <code>APP_DEBUG</code>, <code>APP_KEY</code>, <code>DB_HOST</code>, <code>DB_DATABASE</code>, <code>DB_USERNAME</code>, dan <code>MAIL_PASSWORD</code> terlihat pada halaman asli.</li><li>Nilai variabel tidak ditampilkan di gambar dokumentasi ini karena dapat mengandung secret dan detail infrastruktur.</li><li>Nama variabel saja dapat memberi petunjuk mengenai teknologi dan komponen yang digunakan, tetapi tidak sama dengan memperoleh nilai credential.</li></ul>
+<div class="callout danger"><strong>Perlindungan bukti:</strong> screenshot asli mengandung nilai yang tampak seperti APP_KEY, database credential, mail credential, dan alamat internal. Jangan mengunggah screenshot asli ke repositori publik atau laporan yang tidak dibatasi. Gunakan salinan yang sudah disamarkan dan lakukan rotation terhadap secret jika nilai tersebut masih aktif serta pernah terekspos.</div>
+</section>
+<section class="section" id="stack"><div class="kicker">06 / Stack Trace Analysis</div><h2>Apa yang Bisa Dipelajari dari Stack Trace?</h2>
+<p>Stack trace merekam rangkaian pemanggilan fungsi yang berkaitan dengan exception. Dalam konteks investigasi, informasi ini membantu memahami framework, komponen routing, lokasi kode, dan titik terjadinya kegagalan.</p>
+<div class="table-wrap"><table><thead><tr><th>Informasi</th><th>Nilai analisis</th><th>Batasan</th></tr></thead><tbody>
+<tr><td>Framework namespace</td><td>Membantu mengenali Laravel, Symfony components, atau library lain.</td><td>Tidak selalu cukup untuk menentukan versi patch yang tepat.</td></tr>
+<tr><td>File path</td><td>Dapat menunjukkan struktur direktori dan lokasi instalasi.</td><td>Path disclosure bukan akses baca file.</td></tr>
+<tr><td>Application frames</td><td>Dapat membantu membedakan kode aplikasi dan kode vendor.</td><td>Frame yang terlihat tidak otomatis menunjukkan kelemahan pada frame tersebut.</td></tr>
+<tr><td>Exception origin</td><td>Membantu memahami tahap request yang gagal.</td><td>Perlu konteks route dan konfigurasi untuk menentukan akar masalah.</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="environment"><div class="kicker">07 / Environment Disclosure</div><h2>Environment Variables dan Konfigurasi Aplikasi</h2>
+<p>Environment variables digunakan aplikasi untuk memisahkan konfigurasi dari source code. Pada Laravel, file <code>.env</code> lazim digunakan untuk menyediakan konfigurasi seperti application key, database connection, mail transport, cache, queue, dan layanan eksternal.</p>
+<p>Apabila debug page menampilkan nilai environment, informasi tersebut dapat mengungkap konfigurasi yang seharusnya hanya tersedia di sisi server. Tingkat risikonya berbeda-beda: ada nilai yang hanya memberi konteks, sementara nilai lain merupakan secret yang dapat memberikan akses jika masih valid dan memiliki privilege memadai.</p>
+<div class="table-wrap"><table><thead><tr><th>Variabel / kelompok</th><th>Informasi yang mungkin terungkap</th><th>Penilaian</th></tr></thead><tbody>
+<tr><td><code>APP_ENV</code>, <code>APP_DEBUG</code></td><td>Lingkungan aplikasi dan status debug.</td><td>Informasi konfigurasi; dapat membantu memahami kondisi deployment.</td></tr>
+<tr><td><code>APP_KEY</code></td><td>Application key Laravel.</td><td>Secret penting; dampaknya bergantung pada versi, penggunaan, dan mekanisme aplikasi.</td></tr>
+<tr><td><code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_DATABASE</code></td><td>Lokasi dan nama database.</td><td>Detail infrastruktur; tidak otomatis memberi akses database.</td></tr>
+<tr><td><code>DB_USERNAME</code>, <code>DB_PASSWORD</code></td><td>Credential database.</td><td>Berpotensi kritis jika credential valid, dapat dijangkau, dan memiliki privilege.</td></tr>
+<tr><td><code>MAIL_HOST</code>, <code>MAIL_USERNAME</code>, <code>MAIL_PASSWORD</code></td><td>Konfigurasi dan credential layanan email.</td><td>Dapat memungkinkan penyalahgunaan layanan jika masih aktif.</td></tr>
+<tr><td>Cloud / API keys</td><td>Credential layanan pihak ketiga.</td><td>Dampak bergantung pada scope, izin, dan status key.</td></tr>
+</tbody></table></div>
+<div class="callout warn"><strong>Prinsip penting:</strong> disclosure nama variabel, disclosure nilai konfigurasi, dan validasi credential adalah tiga tingkat bukti yang berbeda. Laporan harus menyebutkan tingkat yang benar-benar diamati.</div>
+</section>
+<section class="section" id="secrets"><div class="kicker">08 / Sensitive Data Classification</div><h2>Memilah Informasi yang Terlihat</h2>
+<p>Jangan menganggap semua informasi pada debug page mempunyai tingkat sensitivitas yang sama. Klasifikasikan berdasarkan fungsi dan potensi dampaknya.</p>
+<div class="definition">
+<article><b>Reconnaissance Context</b><p>Nama framework, namespace, route, path, dan versi komponen. Berguna untuk pemetaan, tetapi bukan credential.</p></article>
+<article><b>Configuration Detail</b><p>Nama database, host, port, driver, mail provider, serta mode aplikasi. Dapat mengungkap arsitektur.</p></article>
+<article><b>Authentication Secret</b><p>Password, token, API key, APP_KEY, dan secret lain. Perlu perlakuan khusus dan tidak boleh disebarluaskan.</p></article>
+<article><b>Personal / Operational Data</b><p>Email, username, alamat internal, request data, dan informasi pengguna. Perlu minimisasi serta redaksi.</p></article>
+</div>
+</section>
+<section class="section" id="conditions"><div class="kicker">09 / Conditions</div><h2>Kondisi yang Memungkinkan Informasi Terbuka</h2>
+<ul><li>Endpoint atau route dapat dijangkau oleh pihak yang tidak semestinya.</li><li>Request memicu exception yang dirender oleh aplikasi.</li><li>Konfigurasi debug atau exception renderer menampilkan detail internal ke response.</li><li>Context yang ditampilkan memuat informasi sensitif, bukan hanya pesan error umum.</li><li>Tidak ada redaction atau pembatasan akses yang memadai pada halaman exception.</li></ul>
+<p>Kondisi tersebut harus diperiksa sebagai rangkaian. Debug mode yang aktif saja belum membuktikan bahwa semua secret akan muncul pada setiap exception. Begitu pula exception page yang terlihat belum tentu menampilkan environment variables.</p>
+</section>
+<section class="section" id="impact"><div class="kicker">10 / Impact Assessment</div><h2>Dampak dan Batasan Kesimpulan</h2>
+<div class="table-wrap"><table><thead><tr><th>Bukti yang ditemukan</th><th>Kesimpulan yang dapat dibuat</th><th>Yang belum boleh diasumsikan</th></tr></thead><tbody>
+<tr><td>HTTP 405 saja</td><td>Route tidak mendukung method request tersebut.</td><td>Tidak boleh disebut information disclosure tanpa bukti tambahan.</td></tr>
+<tr><td>Stack trace dan absolute path</td><td>Terjadi debug detail / path disclosure.</td><td>Tidak membuktikan file dapat dibaca atau ditulis.</td></tr>
+<tr><td>Nama environment variables</td><td>Konfigurasi aplikasi dapat dipetakan sebagian.</td><td>Tidak membuktikan credential telah bocor.</td></tr>
+<tr><td>Nilai secret tampil</td><td>Secret disclosure telah teramati.</td><td>Tidak otomatis membuktikan secret masih valid atau memberi akses tertentu.</td></tr>
+<tr><td>Credential valid dan akses terotorisasi teruji</td><td>Dampak akses dapat dijelaskan sesuai scope dan privilege yang terbukti.</td><td>Jangan memperluas klaim melampaui sistem dan izin pengujian.</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="branching"><div class="kicker">11 / Investigation Tree</div><h2>Peta Percabangan Logout Leak</h2>
+<p>Peta berikut menggambarkan cara mengklasifikasikan informasi dari satu exception page. Setiap cabang adalah kemungkinan arah analisis, bukan tahapan yang pasti terjadi.</p>
+<pre class="tree">GET /logout
+    |
+    v
+MethodNotAllowedHttpException (405)
+    |
+    v
+Exception Page Disclosure?
+    |
+    +-- Tidak ada detail internal
+    |      +-- Catat HTTP behavior
+    |      +-- Tidak ada bukti information disclosure
+    |
+    +-- Stack Trace / Path terlihat
+    |      +-- Framework identification
+    |      +-- Application path disclosure
+    |      +-- Source / version research (jika relevan)
+    |
+    +-- Environment Context terlihat
+           +-- Hanya nama variabel
+           |      +-- Configuration mapping
+           |
+           +-- Nilai konfigurasi terlihat
+                  +-- Infrastructure details
+                  +-- Secret exposure (jika nilai sensitif)
+                  +-- Assess validity only within authorization</pre>
+<div class="callout"><strong>Hubungan sebab-akibat:</strong> request ke logout dapat menjadi pemicu exception; debug rendering dapat menjadi sumber disclosure. Keduanya merupakan lapisan yang berbeda dan perlu dijelaskan terpisah dalam laporan.</div>
+</section>
+<section class="section" id="cross"><div class="kicker">12 / Cross-Technique Relationships</div><h2>Hubungan dengan Teknik Lain</h2>
+<div class="table-wrap"><table><thead><tr><th>Informasi / petunjuk</th><th>Materi terkait</th><th>Hubungan yang masuk akal</th></tr></thead><tbody>
+<tr><td>Framework version dan stack trace</td><td><a href="laravel-ignition.html">Laravel Ignition</a></td><td>Keduanya membahas exception rendering dan debug disclosure. Logout Leak merupakan pola konteks endpoint; Ignition adalah salah satu kemungkinan antarmuka exception.</td></tr>
+<tr><td>Database host dan konfigurasi query</td><td><a href="sqli.html">SQL Injection</a></td><td>Memberi konteks teknologi database. Tidak membuktikan SQLi.</td></tr>
+<tr><td>Absolute path dan struktur aplikasi</td><td><a href="lfi.html">LFI</a></td><td>Dapat membantu memahami path aplikasi. Path disclosure bukan LFI.</td></tr>
+<tr><td>Framework, dependency, dan path</td><td><a href="source-leak.html">Source Leak</a></td><td>Dapat menjadi petunjuk untuk meninjau source atau dependency bila tersedia melalui sumber yang sah.</td></tr>
+<tr><td>Environment / credential exposure</td><td>Credential Exposure</td><td>Nilai secret yang benar-benar tampil dapat diklasifikasikan sebagai secret disclosure; validitas dan dampaknya harus dinilai terpisah.</td></tr>
+</tbody></table></div>
+<p>Relasi tersebut tidak otomatis membentuk rantai exploit. Temuan awal hanya membantu menentukan pertanyaan berikutnya. Setiap dugaan harus didukung bukti dan tetap berada dalam ruang lingkup pengujian yang disetujui.</p>
+</section>
+<section class="section" id="assessment"><div class="kicker">13 / Reporting Method</div><h2>Cara Menilai dan Melaporkan Temuan</h2>
+<ol><li><strong>Catat request:</strong> endpoint, HTTP method, waktu, status autentikasi, dan response code.</li><li><strong>Identifikasi exception:</strong> catat jenis exception dan pesan yang tampil.</li><li><strong>Klasifikasikan disclosure:</strong> pisahkan stack trace, path, nama variabel, nilai konfigurasi, dan secret.</li><li><strong>Minimalkan validasi:</strong> jangan mencoba menggunakan credential atau mengakses data yang tidak diperlukan untuk membuktikan temuan.</li><li><strong>Nilai exposure:</strong> jelaskan apakah halaman dapat dilihat tanpa autentikasi atau role tertentu.</li><li><strong>Redaksi bukti:</strong> tutup password, token, APP_KEY, alamat internal, dan data personal pada screenshot.</li><li><strong>Nyatakan batasan:</strong> bedakan fakta yang terlihat dari asumsi tentang akses lanjutan.</li></ol>
+<div class="callout good"><strong>Contoh judul laporan:</strong> “Laravel Debug Exception Discloses Environment Configuration on Logout Endpoint”. Judul ini lebih informatif daripada menyebut “Logout Bug” saja.</div>
+</section>
+<section class="section" id="mitigation"><div class="kicker">14 / Mitigation</div><h2>Mitigasi dan Pencegahan</h2>
+<ul><li>Pastikan detail exception tidak ditampilkan kepada pengguna pada production; atur <code>APP_DEBUG=false</code> dan verifikasi konfigurasi efektif.</li><li>Gunakan exception handler yang mengembalikan error page umum kepada client dan menyimpan detail diagnostik pada log server yang aksesnya dibatasi.</li><li>Pastikan route logout menggunakan method dan proteksi CSRF yang sesuai dengan desain aplikasi.</li><li>Jangan menaruh credential atau secret di response, exception message, atau debug context.</li><li>Batasi akses ke log, monitoring, error-sharing service, dan lingkungan staging.</li><li>Jika secret terpapar, lakukan rotation/revocation, tinjau log akses, dan evaluasi potensi penyalahgunaan.</li><li>Pastikan screenshot, tiket, dokumentasi, dan repositori publik menggunakan bukti yang sudah disamarkan.</li></ul>
+<p>Referensi konfigurasi Laravel: <a href="https://laravel.com/docs/11.x/errors" target="_blank" rel="noopener">Laravel Error Handling</a> dan <a href="https://laravel.com/docs/11.x/routing" target="_blank" rel="noopener">Laravel Routing</a>.</p>
+</section>
+<section class="section" id="summary"><div class="kicker">15 / ZeroHitman Summary</div><h2>Kesimpulan</h2>
+<p>Contoh Logout Leak memperlihatkan bagaimana request yang menghasilkan error biasa dapat berubah menjadi temuan information disclosure ketika exception page menampilkan detail internal. HTTP 405 hanya menjelaskan bahwa method request tidak didukung oleh route. Risiko tambahannya berasal dari informasi yang ikut dirender kepada client.</p>
+<p>Karena itu, analisis perlu memisahkan trigger, exception, disclosure, dan impact. Stack trace, path, nama environment variable, serta nilai secret mempunyai tingkat sensitivitas dan konsekuensi yang berbeda. Jangan menganggap satu temuan otomatis membuka akses ke database, file system, atau remote code execution.</p>
+<div class="callout"><strong>ZeroHitman mindset:</strong> ambil informasi yang benar-benar terlihat, klasifikasikan nilainya, tentukan mana yang relevan, lalu gunakan bukti tersebut untuk mengarahkan investigasi berikutnya. Nama teknik membantu mengingat pola; analisis tetap harus mengikuti kondisi nyata.</div>
+</section>
+<section class="section" id="references"><div class="kicker">16 / References</div><h2>Referensi</h2>
+<ul class="source-list">
+<li><a href="https://laravel.com/docs/11.x/routing" target="_blank" rel="noopener">Laravel Documentation — Routing</a></li>
+<li><a href="https://laravel.com/docs/11.x/errors" target="_blank" rel="noopener">Laravel Documentation — Error Handling</a></li>
+<li><a href="https://laravel.com/docs/11.x/configuration" target="_blank" rel="noopener">Laravel Documentation — Configuration</a></li>
+<li><a href="https://owasp.org/www-project-web-security-testing-guide/" target="_blank" rel="noopener">OWASP Web Security Testing Guide</a></li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP Error Handling Cheat Sheet</a></li>
+</ul>
+</section>
+<footer class="footer"><span>ZeroHitman — Security Research Documentation</span><div class="next-links"><a href="laravel-ignition.html">← Laravel Ignition</a><a href="conclusion.html">Conclusion →</a><a href="tree.html">Back to Tree ↑</a></div></footer>
+</div></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Dokumentasi ZeroHitman tentang Local File Inclusion (LFI): konsep, akar masalah, perbedaan dengan Path Traversal, sumber informasi, kondisi dampak, hubungan teknik, dan mitigasi.">
+<meta name="theme-color" content="#0a0e1a">
+<title>Local File Inclusion (LFI) — ZeroHitman Documentation</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#111827;--panel2:#0d1422;--line:#263244;--line2:#3a4a60;--text:#e5e7eb;--muted:#a5b2c3;--dim:#748397;--cyan:#22d3ee;--blue:#60a5fa;--green:#4ade80;--gold:#fbbf24;--orange:#fb923c;--red:#f87171;--purple:#c4b5fd;--radius:15px;--max:1120px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.72 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline;color:#a5f3fc}.wrap{width:min(var(--max),calc(100% - 36px));margin:auto}.topbar{position:sticky;top:0;z-index:20;background:rgba(10,14,26,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.topinner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.04em;color:var(--text)}.brand img{width:38px;height:38px;object-fit:contain}.brand small{display:block;color:var(--cyan);font-size:10px;letter-spacing:.12em}.toplinks{display:flex;gap:18px;flex-wrap:wrap;font-size:13px}.hero{padding:76px 0 52px;background:radial-gradient(ellipse at 50% 0,rgba(34,211,238,.13),transparent 58%),radial-gradient(ellipse at 100% 40%,rgba(96,165,250,.08),transparent 42%);border-bottom:1px solid var(--line)}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(36px,6vw,62px);line-height:1.08;letter-spacing:-.04em;margin:14px 0}.hero p{max-width:780px;color:var(--muted);font-size:18px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.chip{border:1px solid var(--line2);background:rgba(17,24,39,.7);padding:5px 10px;border-radius:999px;color:#cbd5e1;font-size:12px}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:34px;padding:36px 0 80px}.toc{position:sticky;top:88px;align-self:start;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);padding:18px}.toc h2{font-size:12px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin:0 0 12px}.toc a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:13px}.toc a:hover{background:#172235;color:var(--text);text-decoration:none}.content{min-width:0}.section{margin:0 0 48px;scroll-margin-top:88px}.section h2{font-size:27px;line-height:1.25;letter-spacing:-.02em;margin:0 0 15px}.section h3{font-size:19px;margin:27px 0 9px;color:#dbeafe}.section h4{font-size:15px;margin:20px 0 7px;color:#bfdbfe}.section p{color:#c5cfdd;margin:10px 0}.lead{font-size:18px;color:#dbeafe!important}.kicker{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:18px 0}.card h3:first-child{margin-top:0}.callout{border-left:3px solid var(--cyan);background:rgba(34,211,238,.07);padding:14px 17px;border-radius:0 10px 10px 0;margin:18px 0;color:#d6e4ef}.callout.warn{border-color:var(--gold);background:rgba(251,191,36,.07)}.callout.danger{border-color:var(--red);background:rgba(248,113,113,.07)}.callout.good{border-color:var(--green);background:rgba(74,222,128,.07)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.mini{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.mini h3{margin:0 0 6px;font-size:16px}.mini p{margin:0;color:var(--muted);font-size:14px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:16px 0}table{width:100%;border-collapse:collapse;min-width:650px;background:var(--panel);font-size:14px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.06em;background:#131e30}td{color:#cbd5e1}tr:last-child td{border-bottom:0}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#a5f3fc;background:#07111e;border:1px solid #1c3346;border-radius:5px;padding:1px 5px;font-size:.92em}pre{overflow:auto;background:#070d17;border:1px solid var(--line);border-radius:12px;padding:17px;color:#cbd5e1;font-size:13px;line-height:1.6}.tree{white-space:pre;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.branch{color:var(--cyan)}.leaf{color:var(--green)}.tag{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;background:#17263a;color:#93c5fd}.tag.warn{background:#342914;color:#fcd34d}.tag.good{background:#123323;color:#86efac}.steps{counter-reset:n;list-style:none;padding:0}.steps li{counter-increment:n;position:relative;padding:0 0 17px 43px;color:#cbd5e1}.steps li:before{content:counter(n);position:absolute;left:0;top:0;width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line2);border-radius:50%;color:var(--cyan);font-weight:800;font-size:12px}.footer{border-top:1px solid var(--line);padding:28px 0 42px;color:var(--dim);font-size:13px}.footerrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.backtop{position:fixed;right:18px;bottom:18px;background:#123040;border:1px solid #1d6071;color:#a5f3fc;border-radius:50%;width:42px;height:42px;display:grid;place-items:center;font-size:20px}.note{font-size:13px;color:var(--dim)}.pillrow{display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid var(--line2);border-radius:999px;padding:4px 9px;font-size:12px;color:#cbd5e1;background:#111c2c}.next{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:28px}.next a{border:1px solid var(--line);border-radius:10px;padding:11px 15px;background:var(--panel);font-size:14px}@media(max-width:850px){.layout{grid-template-columns:1fr;gap:20px}.toc{position:relative;top:auto;max-height:none}.toplinks{display:none}.hero{padding:48px 0 35px}.grid{grid-template-columns:1fr}.wrap{width:min(var(--max),calc(100% - 26px))}}@media print{body{background:#fff;color:#111}.topbar,.toc,.backtop{display:none}.layout{display:block}.section{break-inside:avoid}.section p,td,li{color:#222}}
+</style>
+  <link rel="canonical" href="https://zerohitman.github.io/lfi.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+</head>
+<body id="top">
+<header class="topbar"><div class="wrap topinner">
+<a class="brand" href="index.html"><img src="hitman.png" alt="ZeroHitman logo"><span>ZEROHITMAN<small>SECURITY RESEARCH DOCUMENTATION</small></span></a>
+<nav class="toplinks" aria-label="Navigasi utama"><a href="index.html">Home</a><a href="tree.html">Investigation Tree</a><a href="sqli.html">SQL Injection</a><a href="lfi.html" aria-current="page">LFI</a></nav>
+</div></header>
+<section class="hero"><div class="wrap">
+<div class="eyebrow">ZeroHitman · Technique Reference 02</div>
+<h1>Local File Inclusion <span style="color:var(--cyan)">(LFI)</span></h1>
+<p>Memahami bagaimana aplikasi menggunakan path yang dipengaruhi input untuk memuat file, mengapa validasi yang lemah dapat berubah menjadi disclosure, dan bagaimana satu temuan dapat membuka jalur investigasi lain.</p>
+<div class="chips"><span class="chip">Web Security</span><span class="chip">File Handling</span><span class="chip">Information Disclosure</span><span class="chip">Investigation Branching</span></div>
+</div></section>
+<main class="wrap layout">
+<aside class="toc"><h2>Daftar Isi</h2>
+<a href="#intro">01. Pengertian LFI</a><a href="#mechanism">02. Cara Kerja File Inclusion</a><a href="#root">03. Akar Masalah</a><a href="#distinction">04. LFI, Path Traversal, File Read</a><a href="#types">05. Jenis dan Pola LFI</a><a href="#impact">06. Dampak dan Informasi</a><a href="#source">07. Source Code Disclosure</a><a href="#wrappers">08. PHP Stream Wrappers</a><a href="#logs">09. Log dan Session</a><a href="#proc">10. /proc dan Runtime Context</a><a href="#rce">11. Kondisi RCE</a><a href="#blind">12. Blind LFI</a><a href="#branching">13. Percabangan Tree V5.0</a><a href="#cross">14. Cross-Technique</a><a href="#assessment">15. Penilaian Temuan</a><a href="#mitigation">16. Mitigasi</a><a href="#summary">17. Kesimpulan</a>
+</aside>
+<div class="content">
+<section class="section" id="intro"><div class="kicker">01 / Fundamentals</div><h2>Apa Itu Local File Inclusion?</h2>
+<p class="lead"><strong>Local File Inclusion (LFI)</strong> adalah kelemahan pada aplikasi ketika aplikasi memuat atau memasukkan file lokal berdasarkan nilai yang dapat dipengaruhi pengguna, tanpa pembatasan path dan validasi yang memadai.</p>
+<p>Istilah <em>inclusion</em> biasanya digunakan ketika aplikasi menggunakan mekanisme bahasa atau framework untuk memasukkan file ke dalam proses aplikasi. Pada PHP, contohnya adalah penggunaan konstruksi seperti <code>include</code> dan <code>require</code>. Jika pemilihan file dikendalikan input yang tidak aman, penyerang mungkin dapat membuat aplikasi mengakses file di luar file yang semestinya dipilih.</p>
+<p>Konsekuensi LFI bergantung pada bagaimana file diproses. File yang hanya dibaca sebagai data tidak selalu memiliki dampak yang sama dengan file yang diinterpretasikan sebagai kode. Karena itu, LFI perlu dibedakan dari pembacaan file biasa, path traversal, dan eksekusi kode.</p>
+<div class="callout"><strong>Inti konsep:</strong> masalah utamanya bukan sekadar karakter <code>../</code> atau nama file. Masalahnya adalah keputusan aplikasi tentang file apa yang boleh dimuat, dari lokasi mana, dan dengan cara apa file tersebut diproses.</div>
+</section>
+<section class="section" id="mechanism"><div class="kicker">02 / Application Flow</div><h2>Bagaimana File Inclusion Bekerja?</h2>
+<p>Secara konseptual, aplikasi dapat menyediakan fitur untuk memilih template, halaman bahasa, modul, atau konten berdasarkan parameter. Aplikasi kemudian menerjemahkan pilihan tersebut menjadi lokasi file yang akan digunakan.</p>
+<div class="card">
+<div class="steps">
+<li><strong>Input diterima.</strong> Aplikasi menerima nilai dari parameter URL, form, cookie, header, atau sumber lain.</li>
+<li><strong>Nilai dipakai untuk memilih file.</strong> Kode aplikasi menggabungkan atau meneruskan nilai tersebut ke mekanisme file handling.</li>
+<li><strong>Validasi dan pembatasan dilakukan.</strong> Aplikasi seharusnya memastikan pilihan berasal dari daftar yang diizinkan dan tetap berada dalam direktori yang dimaksud.</li>
+<li><strong>File diproses.</strong> Jika kontrol tidak memadai, aplikasi dapat memuat file yang tidak dimaksudkan untuk diakses melalui fitur tersebut.</li>
+<li><strong>Dampak dinilai.</strong> Peneliti memeriksa jenis file, isi yang terekspos, cara file diproses, serta hak akses proses aplikasi.</li>
+</div></div>
+<h3>Contoh konseptual yang aman</h3>
+<pre><code>// Pola berisiko: pilihan file berasal langsung dari input pengguna
+$page = $_GET['page'] ?? 'home';
+include($page . '.php');
+
+// Pola yang lebih aman: input dipetakan ke daftar pilihan tetap
+$pages = [
+  'home' => __DIR__ . '/pages/home.php',
+  'about' => __DIR__ . '/pages/about.php'
+];
+$key = $_GET['page'] ?? 'home';
+if (!array_key_exists($key, $pages)) {
+  http_response_code(404);
+  exit;
+}
+include($pages[$key]);</code></pre>
+<p>Contoh tersebut menunjukkan perbedaan desain: versi pertama membangun path dari input, sedangkan versi kedua hanya menerima identifier yang dipetakan ke file yang telah ditentukan. Contoh ini bersifat ilustratif dan bukan demonstrasi eksploitasi.</p>
+</section>
+<section class="section" id="root"><div class="kicker">03 / Root Causes</div><h2>Mengapa LFI Bisa Terjadi?</h2>
+<div class="grid">
+<div class="mini"><h3>Input langsung menjadi path</h3><p>Nilai dari request dipakai untuk menentukan file tanpa pemetaan pilihan yang ketat.</p></div>
+<div class="mini"><h3>Validasi hanya berbasis blacklist</h3><p>Aplikasi mencoba menolak beberapa pola, tetapi tidak membatasi file yang boleh dipilih secara positif.</p></div>
+<div class="mini"><h3>Path tidak dinormalisasi</h3><p>Aplikasi tidak memastikan hasil resolusi path tetap berada di direktori yang ditetapkan.</p></div>
+<div class="mini"><h3>Kontrol akses file terlalu luas</h3><p>Proses aplikasi dapat membaca file sensitif yang sebenarnya tidak diperlukan untuk menjalankan fungsi web.</p></div>
+<div class="mini"><h3>Perbedaan konfigurasi lingkungan</h3><p>Perilaku path, permission, wrapper, dan filesystem dapat berbeda antara development, staging, dan production.</p></div>
+<div class="mini"><h3>Desain plugin atau template dinamis</h3><p>Fitur extensibility yang fleksibel dapat menjadi berisiko jika sumber modul atau template tidak dibatasi.</p></div>
+</div>
+<div class="callout warn">Validasi yang hanya menghapus substring tertentu bukan kontrol keamanan yang kuat. Pendekatan yang lebih baik adalah allowlist identifier, pemetaan ke lokasi tetap, canonicalization yang benar, dan pembatasan hak akses proses.</div>
+</section>
+<section class="section" id="distinction"><div class="kicker">04 / Terminology</div><h2>LFI, Path Traversal, dan Arbitrary File Read</h2>
+<p>Ketiganya berkaitan dengan pemilihan atau akses file, tetapi bukan istilah yang dapat dipertukarkan begitu saja.</p>
+<div class="table-wrap"><table><thead><tr><th>Istilah</th><th>Makna</th><th>Hal yang perlu dibuktikan</th></tr></thead><tbody>
+<tr><td><strong>Path Traversal</strong></td><td>Input memengaruhi path sehingga proses dapat menunjuk lokasi di luar direktori yang dimaksud.</td><td>Apakah aplikasi benar-benar mengakses path di luar batas yang ditetapkan?</td></tr>
+<tr><td><strong>Arbitrary File Read</strong></td><td>Kemampuan membaca file yang tidak semestinya dapat dibaca oleh pemanggil.</td><td>File apa yang dapat dibaca, oleh komponen mana, dan dengan izin siapa?</td></tr>
+<tr><td><strong>Local File Inclusion</strong></td><td>Aplikasi memasukkan atau memuat file lokal berdasarkan pemilihan yang dapat dipengaruhi pengguna.</td><td>Apakah file diproses sebagai inclusion, dan apa perilaku interpreter terhadap file tersebut?</td></tr>
+<tr><td><strong>Remote File Inclusion (RFI)</strong></td><td>Dalam konteks tertentu, aplikasi memuat sumber file dari lokasi remote.</td><td>Apakah remote inclusion didukung dan diizinkan oleh runtime serta konfigurasi?</td></tr>
+</tbody></table></div>
+<div class="callout good">Satu kelemahan dapat memiliki lebih dari satu karakteristik. Contohnya, bug pada parameter file dapat sekaligus memungkinkan path traversal dan file disclosure. Klasifikasi akhir harus mengikuti perilaku yang terbukti, bukan hanya nama parameter atau dugaan awal.</div>
+</section>
+<section class="section" id="types"><div class="kicker">05 / Classification</div><h2>Jenis dan Pola LFI</h2>
+<h3>Direct / Reflected LFI</h3><p>Aplikasi memuat file yang dipilih melalui input, dan hasil pemrosesannya dapat terlihat langsung pada respons. Visibilitas isi file bergantung pada format respons dan cara aplikasi menangani output.</p>
+<h3>Indirect LFI</h3><p>Nilai yang memengaruhi pemilihan file dapat tersimpan lebih dahulu, misalnya pada preferensi pengguna, pilihan bahasa, atau konfigurasi. File baru diproses ketika fungsi lain dijalankan.</p>
+<h3>Blind LFI</h3><p>Aplikasi mungkin mengakses file, tetapi isi file tidak dikembalikan secara langsung. Penilaian dilakukan melalui perbedaan perilaku yang dapat diamati, misalnya status respons, pesan kesalahan, atau perubahan waktu. Pengamatan harus dirancang hati-hati agar tidak salah mengartikan gangguan jaringan atau variasi performa sebagai bukti.</p>
+<h3>Conditional / Context-dependent LFI</h3><p>Perilaku inclusion dapat bergantung pada autentikasi, role, konfigurasi runtime, ekstensi file, atau alur aplikasi tertentu. Karena itu, satu endpoint mungkin berperilaku berbeda untuk pengguna dan kondisi yang berbeda.</p>
+</section>
+<section class="section" id="impact"><div class="kicker">06 / Impact</div><h2>Dampak dan Informasi yang Mungkin Terpapar</h2>
+<p>LFI tidak memiliki satu dampak baku. Dampak ditentukan oleh file yang dapat dijangkau, permission proses, cara file diproses, serta informasi yang terdapat di dalamnya.</p>
+<div class="table-wrap"><table><thead><tr><th>Kategori informasi</th><th>Contoh konteks</th><th>Nilai investigasi</th></tr></thead><tbody>
+<tr><td>System account metadata</td><td>Informasi akun dan service pada sistem operasi.</td><td>Memahami user yang ada dan konteks layanan; bukan bukti bahwa autentikasi jarak jauh dapat dilakukan.</td></tr>
+<tr><td>Application configuration</td><td>Konfigurasi aplikasi, framework, atau web server.</td><td>Memahami path, mode aplikasi, komponen, dan pengaturan keamanan.</td></tr>
+<tr><td>Environment variables</td><td>Konfigurasi runtime dan secret yang disuntikkan ke proses.</td><td>Dapat mengungkap credential atau token; validitas dan scope-nya harus diverifikasi secara aman.</td></tr>
+<tr><td>Database configuration</td><td>Host database, nama database, username, atau parameter koneksi.</td><td>Membantu memetakan ketergantungan aplikasi; jangan menganggap credential masih aktif.</td></tr>
+<tr><td>Source code</td><td>File PHP, template, route, atau konfigurasi framework.</td><td>Membantu code review dan menemukan titik input, query, autentikasi, serta file handling lain.</td></tr>
+<tr><td>Logs and session data</td><td>Log aplikasi atau file session yang dapat dibaca proses.</td><td>Dapat mengandung data sensitif; isi dan format bergantung pada implementasi.</td></tr>
+<tr><td>Container / orchestration metadata</td><td>Informasi runtime container atau secret yang dipasang ke container.</td><td>Membantu memahami batas isolasi; keberadaan file tidak berarti seluruh host dapat diakses.</td></tr>
+</tbody></table></div>
+<div class="callout danger"><strong>Credential exposure bukan akses otomatis.</strong> Secret yang terlihat dapat sudah kedaluwarsa, dibatasi scope, dinonaktifkan, atau hanya berlaku pada lingkungan tertentu. Validasi harus mengikuti izin dan prosedur client, tanpa mencoba menggunakan secret di luar scope.</div>
+</section>
+<section class="section" id="source"><div class="kicker">07 / Source Code Disclosure</div><h2>File Read Menuju Source Code Analysis</h2>
+<p>Salah satu hasil investigasi yang bernilai dari file disclosure adalah pemahaman lebih baik terhadap source code. Pada aplikasi yang menggunakan PHP, file sumber dapat mengungkap alur pemrosesan request, pemanggilan database, autentikasi, file upload, dan pemilihan file.</p>
+<div class="card"><h3>Informasi yang dapat dipetakan dari source code</h3><ul>
+<li><strong>Input handling:</strong> parameter, cookie, header, dan data yang disimpan sebelum digunakan.</li>
+<li><strong>Database interaction:</strong> query, model, serta pemisahan data dan perintah.</li>
+<li><strong>Authentication & authorization:</strong> middleware, role check, dan pemeriksaan kepemilikan objek.</li>
+<li><strong>File handling:</strong> upload, download, include, export, dan penghapusan file.</li>
+<li><strong>Application routes:</strong> endpoint yang tersedia dan fungsi yang dituju.</li>
+<li><strong>Dependencies:</strong> library dan versi yang perlu dibandingkan dengan advisory resmi.</li>
+</ul></div>
+<p>Source code disclosure sendiri belum tentu memberikan akses untuk mengubah aplikasi. Nilainya adalah membuka konteks untuk analisis lebih lanjut. Temuan baru seperti SQL Injection, Broken Access Control, atau kelemahan upload harus dibuktikan secara terpisah.</p>
+<div class="callout">Inilah contoh pola pikir ZeroHitman: temuan file read dapat menjadi titik awal source analysis; source analysis dapat mengarahkan peneliti ke kandidat vulnerability lain. Hubungan tersebut merupakan arah investigasi, bukan jaminan hasil.</div>
+</section>
+<section class="section" id="wrappers"><div class="kicker">08 / PHP Runtime</div><h2>PHP Stream Wrappers</h2>
+<p>PHP menyediakan <em>stream wrappers</em>, yaitu mekanisme yang memungkinkan fungsi file berinteraksi dengan berbagai jenis stream atau sumber data menggunakan skema tertentu. Wrapper bukan vulnerability dengan sendirinya. Dampaknya bergantung pada fungsi yang memakainya, konfigurasi PHP, dan validasi aplikasi.</p>
+<div class="table-wrap"><table><thead><tr><th>Wrapper</th><th>Fungsi umum</th><th>Catatan keamanan</th></tr></thead><tbody>
+<tr><td><code>file://</code></td><td>Mengakses filesystem lokal.</td><td>Akses tetap dipengaruhi permission proses dan pembatasan lingkungan.</td></tr>
+<tr><td><code>php://</code></td><td>Mengakses stream I/O PHP, termasuk input dan filter stream.</td><td>Sub-scheme memiliki perilaku berbeda; tidak semuanya dapat digunakan sebagai target inclusion.</td></tr>
+<tr><td><code>data://</code></td><td>Mewakili data yang ditanamkan pada URI.</td><td>Penggunaan dibatasi konfigurasi seperti <code>allow_url_fopen</code> dan konteks fungsi; tidak otomatis berarti eksekusi kode.</td></tr>
+<tr><td><code>http://</code> / <code>https://</code></td><td>Mengakses resource melalui protokol HTTP(S) pada fungsi yang mendukungnya.</td><td>Remote access berbeda dari local file inclusion dan dikendalikan konfigurasi runtime serta jaringan.</td></tr>
+<tr><td><code>ftp://</code></td><td>Mengakses resource FTP pada fungsi yang mendukungnya.</td><td>Perlu mempertimbangkan konfigurasi, kredensial, dan batas jaringan.</td></tr>
+<tr><td><code>zip://</code></td><td>Mengakses anggota arsip ZIP melalui stream wrapper.</td><td>Perilaku bergantung pada dukungan ekstensi dan cara aplikasi memproses file.</td></tr>
+<tr><td><code>phar://</code></td><td>Mengakses konten arsip PHAR.</td><td>Risiko deserialization historis bergantung pada operasi, versi PHP, dan gadget chain; sekadar menyebut wrapper bukan bukti RCE.</td></tr>
+<tr><td><code>expect://</code></td><td>Wrapper dari ekstensi PECL Expect untuk interaksi proses.</td><td>Tidak tersedia secara default pada banyak instalasi; keberadaan dan konfigurasi ekstensi harus diverifikasi.</td></tr>
+</tbody></table></div>
+<div class="callout warn">Penting: jangan menyamakan semua wrapper sebagai teknik LFI atau RCE. Beberapa wrapper hanya menyediakan akses stream; sebagian memerlukan ekstensi tambahan; dan perilakunya dapat berubah menurut versi serta konfigurasi PHP.</div>
+</section>
+<section class="section" id="logs"><div class="kicker">09 / Runtime Artifacts</div><h2>Log dan Session sebagai Konteks Investigasi</h2>
+<p>Log dan session merupakan file atau artefak runtime yang mungkin dapat dijangkau oleh proses aplikasi. Dalam kondisi tertentu, aplikasi yang rentan dapat memuat artefak tersebut. Namun, keberadaan file log atau session tidak otomatis menjadikannya jalur eksekusi.</p>
+<h3>Log files</h3><p>Web server dan aplikasi dapat menyimpan request metadata, pesan error, atau aktivitas sistem. Format dan lokasi log ditentukan konfigurasi. Sebagian log mungkin memuat data yang dikendalikan pengguna, tetapi apakah data itu diperlakukan sebagai kode ketika file dimuat merupakan persoalan terpisah yang sangat bergantung pada interpreter, format, dan konteks.</p>
+<h3>Session files</h3><p>Session dapat disimpan di filesystem, database, Redis, atau backend lain. Jika disimpan sebagai file, format, lokasi, permission, dan proses pembersihannya bergantung pada konfigurasi. Data session dapat mengandung identifier atau state sensitif, sehingga akses yang tidak semestinya berpotensi menimbulkan disclosure atau risiko integritas.</p>
+<div class="callout danger"><strong>Jangan menyimpulkan “log poisoning = RCE” atau “session poisoning = RCE”.</strong> Itu adalah label rantai kondisi yang memerlukan beberapa prasyarat sekaligus. Pengujian harus dilakukan secara terkendali pada sistem yang diizinkan, dan tidak perlu menulis data berbahaya ke log atau session produksi untuk membuktikan disclosure.</div>
+</section>
+<section class="section" id="proc"><div class="kicker">10 / Linux Process Context</div><h2>/proc dan Informasi Runtime</h2>
+<p>Pada Linux, <code>/proc</code> adalah pseudo-filesystem yang menyajikan informasi kernel dan proses. Beberapa entri di bawah direktori proses dapat memberikan konteks tentang environment, command line, working directory, file descriptor, atau memory mapping proses.</p>
+<div class="table-wrap"><table><thead><tr><th>Artefak</th><th>Informasi konseptual</th><th>Batasan penting</th></tr></thead><tbody>
+<tr><td><code>/proc/&lt;pid&gt;/environ</code></td><td>Environment yang terkait proses.</td><td>Akses dipengaruhi permission, namespace, dan kebijakan sistem.</td></tr>
+<tr><td><code>/proc/&lt;pid&gt;/cmdline</code></td><td>Argumen command line proses.</td><td>Dapat memuat argumen sensitif jika aplikasi menaruh secret di command line.</td></tr>
+<tr><td><code>/proc/&lt;pid&gt;/cwd</code></td><td>Referensi ke current working directory proses.</td><td>Resolusi dan akses tetap tunduk pada permission serta konteks proses.</td></tr>
+<tr><td><code>/proc/&lt;pid&gt;/fd/</code></td><td>Referensi file descriptor yang terbuka.</td><td>Setiap descriptor memiliki target dan permission yang berbeda.</td></tr>
+<tr><td><code>/proc/&lt;pid&gt;/maps</code></td><td>Gambaran mapping memory proses.</td><td>Bukan dump isi memori secara langsung; akses dapat dibatasi oleh kontrol kernel.</td></tr>
+</tbody></table></div>
+<p>Tree V5.0 menyebut beberapa path <code>/proc/self/...</code>. Kata <code>self</code> mengacu pada proses yang melakukan akses. Jika akses dilakukan melalui web server atau PHP-FPM, konteksnya adalah proses tersebut, bukan otomatis seluruh host atau proses lain.</p>
+</section>
+<section class="section" id="rce"><div class="kicker">11 / Impact Boundary</div><h2>Kapan LFI Dapat Berkaitan dengan RCE?</h2>
+<p><strong>Remote Code Execution (RCE)</strong> berarti input yang dikendalikan dari jarak jauh menyebabkan kode atau perintah dijalankan pada sistem. LFI dapat menjadi salah satu komponen rantai menuju RCE pada konfigurasi tertentu, tetapi LFI sendiri tidak sama dengan RCE.</p>
+<p>Untuk menilai klaim RCE, setidaknya perlu dibedakan beberapa pertanyaan:</p>
+<div class="grid">
+<div class="mini"><h3>1. File selection</h3><p>Apakah file yang dipilih benar-benar dapat dijangkau melalui titik inclusion?</p></div>
+<div class="mini"><h3>2. File content</h3><p>Apakah konten file dapat dipengaruhi pihak yang relevan, atau hanya dibaca sebagai data?</p></div>
+<div class="mini"><h3>3. Interpreter behavior</h3><p>Apakah runtime menginterpretasikan konten sebagai kode dalam konteks tersebut?</p></div>
+<div class="mini"><h3>4. Runtime configuration</h3><p>Apakah wrapper, ekstensi, dan pengaturan yang dibutuhkan tersedia?</p></div>
+<div class="mini"><h3>5. Process permissions</h3><p>Apa hak akses proses web dan batas filesystem yang berlaku?</p></div>
+<div class="mini"><h3>6. Evidence</h3><p>Apakah ada bukti aman dan terukur bahwa eksekusi benar-benar terjadi?</p></div>
+</div>
+<p>Beberapa cabang yang tercantum pada Tree V5.0—seperti log poisoning, PHP wrapper, session poisoning, interaksi dengan <code>/proc</code>, dan file write—lebih tepat dipahami sebagai <strong>kelompok hipotesis rantai dampak</strong>. Masing-masing membutuhkan prasyarat berbeda dan tidak berlaku universal.</p>
+<div class="callout warn">Penulisan yang akurat adalah “LFI dapat berkontribusi pada rantai menuju RCE jika kondisi tertentu terpenuhi”, bukan “LFI menghasilkan RCE”. Jika yang terbukti hanya pembacaan file, laporkan sebagai file disclosure dan jangan menaikkan klaim dampaknya.</div>
+</section>
+<section class="section" id="blind"><div class="kicker">12 / Observability</div><h2>Blind LFI dan Side-channel</h2>
+<p>Blind LFI menggambarkan situasi ketika perilaku file inclusion tidak menampilkan isi file secara langsung. Peneliti mungkin hanya melihat sinyal tidak langsung yang berubah ketika aplikasi mencoba mengakses file atau memproses path tertentu.</p>
+<div class="table-wrap"><table><thead><tr><th>Jenis sinyal</th><th>Yang diamati</th><th>Potensi salah tafsir</th></tr></thead><tbody>
+<tr><td>Time-based</td><td>Perbedaan waktu respons.</td><td>Latency jaringan, beban server, cache, dan proses lain dapat memengaruhi waktu.</td></tr>
+<tr><td>Error-based</td><td>Perbedaan pesan atau kelas error.</td><td>Error generik dapat menyembunyikan penyebab sebenarnya.</td></tr>
+<tr><td>Status-code based</td><td>Perubahan status HTTP.</td><td>Middleware, autentikasi, routing, dan reverse proxy dapat mengubah status.</td></tr>
+<tr><td>Filter / response behavior</td><td>Perbedaan panjang, bentuk, atau karakteristik respons.</td><td>Template, compression, dan dynamic content dapat menghasilkan noise.</td></tr>
+</tbody></table></div>
+<p>Hasil blind testing harus diperlakukan sebagai indikasi sampai dapat dikonfirmasi dengan bukti yang memadai. Catat baseline, ulangi pengamatan secara wajar, dan hindari pengujian berlebihan yang mengganggu layanan.</p>
+</section>
+<section class="section" id="branching"><div class="kicker">13 / ZeroHitman Tree V5.0</div><h2>Percabangan LFI dalam Tree V5.0</h2>
+<p>Bagian ini mempertahankan sembilan kelompok cabang dari Tree V5.0. Nama cabang dipertahankan agar pembaca dapat mencocokkan halaman ini dengan peta utama. Penjelasan di bawah menambahkan konteks dan batas teknis agar label cabang tidak disalahartikan sebagai hasil yang pasti.</p>
+<div class="card"><h3>Ringkasan sembilan cabang</h3><ol>
+<li><strong>File Read → Information Disclosure:</strong> kemungkinan informasi sistem, konfigurasi, credential, dan runtime.</li>
+<li><strong>File Read → Source Code:</strong> pemahaman kode, konfigurasi framework, repository, dan dependency.</li>
+<li><strong>RCE → Log Poisoning:</strong> cabang historis/bersyarat yang memerlukan file log dapat dipengaruhi dan diproses sebagai kode.</li>
+<li><strong>RCE → PHP Wrapper:</strong> memeriksa dukungan wrapper dan kondisi interpreter; wrapper tidak otomatis memberi eksekusi.</li>
+<li><strong>RCE → Session Poisoning:</strong> bergantung pada penyimpanan session, format, kontrol integritas, dan cara pemrosesan.</li>
+<li><strong>RCE → /proc:</strong> mengacu pada interaksi dengan informasi proses; disclosure runtime bukan bukti RCE.</li>
+<li><strong>File Write via LFI:</strong> istilah cabang untuk kondisi ketika rantai terkait memungkinkan perubahan file; LFI read-only tidak memberi kemampuan write.</li>
+<li><strong>Blind LFI:</strong> inferensi melalui sinyal tidak langsung ketika konten tidak ditampilkan.</li>
+<li><strong>LFI → Cross Technique:</strong> informasi dari file atau source code mengarahkan pemeriksaan teknik lain.</li>
+</ol></div>
+<h3>Tree ringkas</h3>
+<pre class="tree"><span class="branch">LFI (include point ditemukan)</span>
+├── <span class="branch">[1] FILE READ → INFO DISCLOSURE</span>
+│   ├── System account / service metadata
+│   ├── Application configuration / .env / framework config
+│   ├── Credential dan secret exposure
+│   ├── Web server / application config
+│   └── Runtime / container metadata
+├── <span class="branch">[2] FILE READ → SOURCE CODE</span>
+│   ├── PHP source dan application logic
+│   ├── Framework config dan route
+│   ├── Repository metadata (.git, jika dapat dijangkau)
+│   └── Dependency manifest → advisory review
+├── <span class="branch">[3] LOG-RELATED CHAIN (CONDITIONAL)</span>
+│   └── Log dapat dibaca + konten dapat dipengaruhi + diproses sebagai kode?
+├── <span class="branch">[4] PHP WRAPPER (CONDITIONAL)</span>
+│   └── Wrapper, ekstensi, konfigurasi, dan interpreter behavior
+├── <span class="branch">[5] SESSION-RELATED CHAIN (CONDITIONAL)</span>
+│   └── Session backend, format, integritas, dan pemrosesan
+├── <span class="branch">[6] /proc AND PROCESS CONTEXT</span>
+│   └── Environment, command line, cwd, fd, maps (permission-dependent)
+├── <span class="branch">[7] FILE WRITE (SEPARATE CAPABILITY)</span>
+│   └── Perlu mekanisme write tersendiri; tidak inheren pada LFI
+├── <span class="branch">[8] BLIND LFI</span>
+│   └── Time / error / status / response oracle
+└── <span class="branch">[9] LFI → CROSS TECHNIQUE</span>
+    ├── Source review → kandidat SQLi / upload / auth issue
+    ├── Repository metadata → Source Leak investigation
+    ├── Config / secret → exposure assessment
+    └── Dependency manifest → CVE research
+
+<span class="leaf">Catatan: setiap cabang bergantung pada bukti, permission, konfigurasi, dan scope pengujian.</span></pre>
+<div class="callout">Tree utama tetap menjadi peta hubungan. Ringkasan ini tidak menggantikan seluruh node asli; fungsinya memberi konteks agar pembaca memahami perbedaan antara file disclosure, source review, side-channel, dan rantai dampak bersyarat.</div>
+</section>
+<section class="section" id="cross"><div class="kicker">14 / Cross-Technique Relationships</div><h2>Hubungan LFI dengan Teknik Lain</h2>
+<div class="table-wrap"><table><thead><tr><th>Informasi / temuan dari LFI</th><th>Arah pertanyaan berikutnya</th><th>Materi terkait</th></tr></thead><tbody>
+<tr><td>Source code aplikasi</td><td>Apakah ada query yang dibangun tidak aman atau kontrol akses yang keliru?</td><td><a href="sqli.html">SQL Injection</a> / code review</td></tr>
+<tr><td>Repository metadata</td><td>Apakah repository atau riwayat perubahan terekspos melalui jalur lain?</td><td><a href="source-leak.html">Source Leak</a></td></tr>
+<tr><td>Dependency manifest</td><td>Versi komponen apa yang digunakan, dan apakah ada advisory yang relevan?</td><td>CVE research</td></tr>
+<tr><td>Credential atau secret</td><td>Apakah secret valid, apa scope-nya, dan apakah terpapar karena konfigurasi?</td><td>Credential exposure / access control review</td></tr>
+<tr><td>Path dan konfigurasi aplikasi</td><td>Apakah ada endpoint, file handler, atau komponen lain yang perlu ditinjau?</td><td>Application mapping</td></tr>
+<tr><td>Log dan session architecture</td><td>Bagaimana data dicatat dan disimpan, serta apakah ada kelemahan integritas?</td><td>Log / session security review</td></tr>
+</tbody></table></div>
+<p>Hubungan tersebut bukan jalur otomatis. Sebagai contoh, menemukan query pada source code hanya menghasilkan kandidat untuk code review. SQL Injection baru dapat dinyatakan jika ada bukti bahwa input memengaruhi query secara tidak aman.</p>
+</section>
+<section class="section" id="assessment"><div class="kicker">15 / Reporting</div><h2>Bagaimana Menilai dan Melaporkan Temuan LFI?</h2>
+<p>Laporan yang baik menjelaskan perilaku yang terbukti, konteks teknis, batasan, serta dampak yang masuk akal. Jangan hanya menuliskan “LFI → RCE” tanpa menjelaskan prasyarat dan bukti.</p>
+<div class="card"><h3>Elemen laporan yang disarankan</h3><ul>
+<li><strong>Location:</strong> endpoint, parameter, fitur, dan role yang terpengaruh.</li>
+<li><strong>Root cause:</strong> bagaimana input memengaruhi pemilihan atau pemrosesan file.</li>
+<li><strong>Evidence:</strong> bukti minimal yang telah disamarkan dan dapat direproduksi sesuai scope.</li>
+<li><strong>File boundary:</strong> jenis file dan batas akses yang benar-benar teruji.</li>
+<li><strong>Execution context:</strong> aplikasi, runtime, OS, permission, dan konfigurasi yang relevan.</li>
+<li><strong>Impact:</strong> disclosure atau dampak lain yang telah dibuktikan, dipisahkan dari kemungkinan.</li>
+<li><strong>Limitations:</strong> file atau dampak yang tidak diuji, tidak dapat dijangkau, atau tidak terbukti.</li>
+<li><strong>Remediation:</strong> perubahan kode, permission, konfigurasi, dan kontrol tambahan.</li>
+</ul></div>
+<div class="callout warn">Saat menguji sistem client, gunakan file uji yang disetujui dan data non-sensitif. Hindari mengambil private key, password hash, credential aktif, atau data pengguna hanya untuk memperkuat bukti. Redaksi dan minimisasi bukti lebih baik daripada pengumpulan data berlebihan.</div>
+</section>
+<section class="section" id="mitigation"><div class="kicker">16 / Defense</div><h2>Pencegahan dan Mitigasi</h2>
+<h3>1. Gunakan allowlist, bukan path bebas</h3><p>Terima identifier logis seperti <code>home</code> atau <code>profile</code>, lalu petakan identifier tersebut ke lokasi file yang telah ditentukan server. Hindari menjadikan input pengguna sebagai path langsung.</p>
+<h3>2. Lakukan canonicalization dan validasi batas direktori</h3><p>Jika aplikasi memang harus menerima path, normalisasi path menggunakan mekanisme yang sesuai platform, resolusikan lokasi sebenarnya, lalu pastikan hasilnya tetap berada di direktori yang diizinkan. Perbandingan string sederhana dapat gagal menghadapi variasi separator, encoding, symbolic link, atau perbedaan filesystem.</p>
+<h3>3. Pisahkan data dari kode</h3><p>Konten yang diunggah pengguna jangan ditempatkan di lokasi yang dapat di-include atau diinterpretasikan sebagai kode. Simpan upload di luar webroot atau pada storage khusus, dengan nama yang dibuat server.</p>
+<h3>4. Terapkan least privilege</h3><p>Akun proses web hanya boleh membaca file yang diperlukan. Pisahkan secret dari direktori aplikasi yang dapat disajikan atau dimuat oleh fitur dinamis. Gunakan isolasi container dan filesystem policy sebagai lapisan tambahan, bukan pengganti validasi aplikasi.</p>
+<h3>5. Batasi runtime features</h3><p>Nonaktifkan ekstensi dan wrapper yang tidak dibutuhkan. Atur PHP configuration dan pembatasan filesystem sesuai kebutuhan aplikasi. Jangan mengandalkan satu konfigurasi sebagai satu-satunya pertahanan.</p>
+<h3>6. Lindungi secret dan artefak runtime</h3><p>Jangan menyimpan credential di source code atau log. Batasi akses log dan session, terapkan rotasi secret, serta hindari menampilkan path internal dan detail exception kepada pengguna.</p>
+<h3>7. Logging dan monitoring</h3><p>Catat kegagalan file access dan pola input yang tidak wajar tanpa menyimpan secret mentah. Alert harus mempertimbangkan baseline aplikasi agar tidak menghasilkan terlalu banyak false positive.</p>
+<div class="callout good"><strong>Prinsip pertahanan:</strong> batasi file yang boleh dipilih, batasi file yang dapat dibaca proses, dan pastikan konten data tidak berubah menjadi kode yang dieksekusi.</div>
+</section>
+<section class="section" id="summary"><div class="kicker">17 / Final Understanding</div><h2>Kesimpulan</h2>
+<p>LFI dimulai dari keputusan aplikasi untuk memuat file berdasarkan input atau state yang tidak dibatasi dengan benar. Temuan ini dapat membuka informasi sistem, konfigurasi, source code, atau artefak runtime. Dalam kondisi tertentu, informasi tersebut dapat menjadi petunjuk untuk investigasi teknik lain.</p>
+<p>Namun, file read tidak otomatis berarti file write; file write tidak otomatis berarti code execution; dan disclosure tidak otomatis berarti credential dapat digunakan. Setiap perpindahan dari satu cabang ke cabang lain membutuhkan kondisi dan bukti tersendiri.</p>
+<div class="card"><h3>Pola pikir ZeroHitman</h3><ol>
+<li>Mulai dari perilaku yang benar-benar ditemukan.</li>
+<li>Kumpulkan informasi yang relevan dan catat sumbernya.</li>
+<li>Pilah fakta, indikasi, asumsi, dan hal yang belum diketahui.</li>
+<li>Gunakan informasi tersebut untuk menentukan cabang investigasi berikutnya.</li>
+<li>Validasi dampak sesuai scope dan gunakan bukti minimal.</li>
+</ol></div>
+<div class="callout"><strong>Satu temuan bukan akhir investigasi.</strong> Nilai sebuah temuan juga terletak pada informasi baru yang dapat membantu peneliti memahami aplikasi dan menemukan area yang perlu diperiksa berikutnya.</div>
+<div class="next"><a href="tree.html">← Kembali ke Investigation Tree</a><a href="source-leak.html">Materi berikutnya: Source Leak →</a></div>
+</section>
+</div></main>
+<footer class="wrap footer"><div class="footerrow"><span>ZeroHitman Security Research Documentation</span><span>Local File Inclusion · Technique Reference</span><span><a href="#top">Kembali ke atas ↑</a></span></div></footer>
+<a class="backtop" href="#top" aria-label="Kembali ke atas">↑</a>
+</body></html>

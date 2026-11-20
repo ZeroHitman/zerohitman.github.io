@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Dokumentasi ZeroHitman tentang SQL Injection: konsep, penyebab, klasifikasi, DBMS, dampak, percabangan investigasi, dan mitigasi.">
+<meta name="theme-color" content="#0a0e1a">
+<title>SQL Injection — ZeroHitman Documentation</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#111827;--panel2:#0d1422;--line:#263244;--line2:#3a4a60;--text:#e5e7eb;--muted:#a5b2c3;--dim:#748397;--cyan:#22d3ee;--blue:#60a5fa;--green:#4ade80;--gold:#fbbf24;--orange:#fb923c;--red:#f87171;--purple:#c4b5fd;--radius:15px;--max:1120px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.72 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline;color:#a5f3fc}.wrap{width:min(var(--max),calc(100% - 36px));margin:auto}.topbar{position:sticky;top:0;z-index:20;background:rgba(10,14,26,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.topinner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.04em}.brand img{width:38px;height:38px;object-fit:contain}.brand small{display:block;color:var(--cyan);font-size:10px;letter-spacing:.12em}.toplinks{display:flex;gap:18px;flex-wrap:wrap;font-size:13px}.hero{padding:76px 0 52px;background:radial-gradient(ellipse at 50% 0,rgba(34,211,238,.13),transparent 58%),radial-gradient(ellipse at 100% 40%,rgba(96,165,250,.08),transparent 42%);border-bottom:1px solid var(--line)}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(36px,6vw,62px);line-height:1.08;letter-spacing:-.04em;margin:14px 0}.hero p{max-width:780px;color:var(--muted);font-size:18px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.chip{border:1px solid var(--line2);background:rgba(17,24,39,.7);padding:5px 10px;border-radius:999px;color:#cbd5e1;font-size:12px}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:34px;padding:36px 0 80px}.toc{position:sticky;top:88px;align-self:start;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);padding:18px}.toc h2{font-size:12px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin:0 0 12px}.toc a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:13px}.toc a:hover{background:#172235;color:var(--text);text-decoration:none}.content{min-width:0}.section{margin:0 0 48px;scroll-margin-top:88px}.section h2{font-size:27px;line-height:1.25;letter-spacing:-.02em;margin:0 0 15px}.section h3{font-size:19px;margin:27px 0 9px;color:#dbeafe}.section p{color:#c5cfdd;margin:10px 0}.lead{font-size:18px;color:#dbeafe!important}.kicker{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:18px 0}.card h3:first-child{margin-top:0}.callout{border-left:3px solid var(--cyan);background:rgba(34,211,238,.07);padding:14px 17px;border-radius:0 10px 10px 0;margin:18px 0;color:#d6e4ef}.callout.warn{border-color:var(--gold);background:rgba(251,191,36,.07)}.callout.danger{border-color:var(--red);background:rgba(248,113,113,.07)}.callout.good{border-color:var(--green);background:rgba(74,222,128,.07)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.mini{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.mini h3{margin:0 0 6px;font-size:16px}.mini p{margin:0;color:var(--muted);font-size:14px}figure{margin:20px 0;background:#fff;border-radius:13px;padding:12px;overflow:hidden}figure img{display:block;max-width:100%;height:auto;margin:auto}figcaption{color:#64748b;font-size:13px;padding:9px 5px 0;line-height:1.5}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:16px 0}table{width:100%;border-collapse:collapse;min-width:650px;background:var(--panel);font-size:14px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.06em;background:#131e30}td{color:#cbd5e1}tr:last-child td{border-bottom:0}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#a5f3fc;background:#07111e;border:1px solid #1c3346;border-radius:5px;padding:1px 5px;font-size:.92em}pre{overflow:auto;background:#070d17;border:1px solid var(--line);border-radius:12px;padding:17px;color:#cbd5e1;font-size:13px;line-height:1.6}.tree{white-space:pre;font-family:ui-monospace,Consolas,monospace}.branch{color:var(--cyan)}.leaf{color:var(--green)}.tag{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;background:#17263a;color:#93c5fd}.tag.warn{background:#342914;color:#fcd34d}.tag.good{background:#123323;color:#86efac}.steps{counter-reset:n;list-style:none;padding:0}.steps li{counter-increment:n;position:relative;padding:0 0 17px 43px;color:#cbd5e1}.steps li:before{content:counter(n);position:absolute;left:0;top:0;width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line2);border-radius:50%;color:var(--cyan);font-weight:800;font-size:12px}.ref-list li{margin:9px 0;color:var(--muted)}.footer{border-top:1px solid var(--line);padding:28px 0 42px;color:var(--dim);font-size:13px}.footerrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.backtop{position:fixed;right:18px;bottom:18px;background:#123040;border:1px solid #1d6071;color:#a5f3fc;border-radius:50%;width:42px;height:42px;display:grid;place-items:center;font-size:20px}.note{font-size:13px;color:var(--dim)}.pillrow{display:flex;gap:8px;flex-wrap:wrap}.pill{padding:5px 9px;border:1px solid var(--line2);border-radius:7px;font-size:12px;color:#cbd5e1}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.toc{position:relative;top:auto;max-height:none}.toc nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}.toplinks{gap:10px}.hero{padding:54px 0 38px}}@media(max-width:560px){.wrap{width:min(100% - 24px,var(--max))}.topinner{align-items:flex-start;padding:12px 0;flex-direction:column}.toplinks{font-size:12px}.grid{grid-template-columns:1fr}.section h2{font-size:23px}.card{padding:15px}.toc nav{grid-template-columns:1fr}}
+</style>
+  <link rel="canonical" href="https://zerohitman.github.io/sqli.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+</head>
+<body id="top">
+<header class="topbar"><div class="wrap topinner">
+  <a class="brand" href="tree.html"><img src="hitman.png" alt="ZeroHitman logo"><span>ZEROHITMAN<small>SECURITY RESEARCH DOCUMENTATION</small></span></a>
+  <nav class="toplinks" aria-label="Navigasi utama"><a href="index.html">Home</a><a href="tree.html">Investigation Tree</a><a href="#references">References</a></nav>
+</div></header>
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">ZeroHitman / Technical Reference / 01</div>
+  <h1>SQL Injection</h1>
+  <p>Memahami bagaimana input yang tidak tepercaya dapat mengubah struktur SQL, bagaimana jenis SQL Injection dibedakan, informasi apa yang dapat diungkap, serta kondisi yang menentukan dampaknya.</p>
+  <div class="chips"><span class="chip">Web Application Security</span><span class="chip">Database Security</span><span class="chip">Fundamentals</span><span class="chip">Defensive & Authorized Research</span></div>
+</div></section>
+<div class="wrap layout">
+<aside class="toc"><h2>Daftar Isi</h2><nav>
+<a href="#intro">01. Pengertian</a><a href="#author-diagram">Diagram Penulis</a><a href="#how">02. Cara Kerja</a><a href="#cause">03. Penyebab</a><a href="#inputs">04. Input Sources</a><a href="#indicators">05. Indikasi</a><a href="#types">06. Jenis SQLi</a><a href="#dbms">07. DBMS</a><a href="#impact">08. Dampak</a><a href="#branches">09. Percabangan</a><a href="#file">10. File Read/Write</a><a href="#rce">11. RCE</a><a href="#limits">12. Batasan & Kondisi</a><a href="#investigation">13. Pola Investigasi</a><a href="#defense">14. Mitigasi</a><a href="#summary">15. Kesimpulan</a><a href="#references">Referensi</a>
+</nav></aside>
+<main class="content">
+<section class="section" id="intro"><div class="kicker">01 / Fundamental</div><h2>Apa Itu SQL Injection?</h2>
+<p class="lead">SQL Injection (SQLi) adalah kelemahan ketika data yang seharusnya diperlakukan sebagai nilai biasa justru ditafsirkan sebagai bagian dari sintaks atau instruksi SQL.</p>
+<p>Aplikasi web umumnya menerima input, memprosesnya, lalu mengirim query ke Database Management System (DBMS). SQLi dapat terjadi ketika aplikasi menyusun query dengan menggabungkan input yang tidak tepercaya ke dalam teks SQL tanpa pemisahan yang aman antara <em>query structure</em> dan <em>data value</em>.</p>
+<div class="callout"><strong>Inti konsep:</strong> masalah utamanya bukan karena pengguna mengirim karakter tertentu. Masalahnya adalah aplikasi memberi kesempatan kepada input untuk mengubah arti atau struktur query yang dijalankan database.</div>
+<p>SQLi dapat muncul pada aplikasi yang memakai SQL secara langsung maupun melalui lapisan abstraksi seperti ORM. Penggunaan ORM tidak otomatis menghilangkan risiko jika query dibangun melalui string dinamis yang tidak aman.</p>
+</section>
+<section class="section" id="author-diagram"><div class="kicker">Author Diagram / Original Map</div><h2>Diagram Percabangan SQL Injection</h2>
+<p>Diagram berikut adalah peta awal yang dibuat penulis untuk menghubungkan titik masuk, indikasi respons, kategori SQLi, privilege database, dan kemungkinan dampak. Diagram dipertahankan sebagai bagian dari identitas metodologi ZeroHitman.</p>
+<figure><img src="assets/images/sqli-diagram.png" alt="Diagram SQL Injection karya penulis: GET dan POST menuju indikasi respons, kategori SQLi, kondisi privilege, dan kemungkinan dampak"><figcaption>Diagram asli dari penulis. Gunakan sebagai peta konseptual; penjelasan pada halaman ini memberi konteks teknis dan batasan untuk setiap hubungan.</figcaption></figure>
+<div class="callout warn"><strong>Cara membaca diagram:</strong> GET dan POST adalah metode HTTP, bukan jenis SQLi. HTTP 500, tampilan blank, atau perubahan respons merupakan indikasi yang perlu diuji, bukan bukti tunggal. Kategori SQLi, privilege database, dan dampak juga merupakan dimensi yang berbeda—bukan satu urutan yang pasti terjadi.</div>
+</section>
+<section class="section" id="how"><div class="kicker">02 / Request-to-Database Flow</div><h2>Bagaimana SQL Injection Bekerja?</h2>
+<p>Untuk memahami SQLi, pisahkan alur aplikasi menjadi beberapa komponen. Browser atau client mengirim input; server menerima dan memvalidasinya; kode aplikasi membentuk query; DBMS menafsirkan query; hasilnya dikembalikan ke aplikasi dan akhirnya ditampilkan atau diproses.</p>
+<div class="card"><div class="grid">
+<div class="mini"><h3>1. Input</h3><p>Nilai berasal dari request, data tersimpan, API lain, atau sumber eksternal.</p></div>
+<div class="mini"><h3>2. Query construction</h3><p>Aplikasi menentukan struktur SQL dan memasukkan nilai yang dibutuhkan.</p></div>
+<div class="mini"><h3>3. DBMS parsing</h3><p>Database membaca dan menafsirkan struktur query sesuai dialect dan konteksnya.</p></div>
+<div class="mini"><h3>4. Result handling</h3><p>Aplikasi menerima hasil, error, perubahan status, atau respons lain.</p></div>
+</div></div>
+<p>SQLi terjadi ketika batas antara data dan instruksi tidak dijaga. Akibatnya, input dapat memengaruhi kondisi, operasi, atau struktur query di luar maksud awal aplikasi.</p>
+<div class="callout warn"><strong>Catatan:</strong> tidak semua input yang mencapai database rentan. Input yang dikirim melalui parameterized query tetap diperlakukan sebagai data, bukan sintaks SQL.</div>
+</section>
+<section class="section" id="cause"><div class="kicker">03 / Root Cause</div><h2>Mengapa SQL Injection Terjadi?</h2>
+<p>Penyebab yang paling umum adalah query dinamis yang dibentuk dengan concatenation atau interpolasi string dari input yang tidak tepercaya. Namun, sumber masalah bisa berada di beberapa lapisan.</p>
+<div class="table-wrap"><table><thead><tr><th>Penyebab</th><th>Penjelasan</th><th>Hal yang perlu ditinjau</th></tr></thead><tbody>
+<tr><td>String concatenation</td><td>Input digabungkan langsung ke teks query.</td><td>Apakah nilai dipisahkan dari struktur SQL?</td></tr>
+<tr><td>Dynamic SQL</td><td>Query dibangun saat runtime berdasarkan input atau kondisi tertentu.</td><td>Apakah nilai dan identifier dikendalikan dengan aman?</td></tr>
+<tr><td>Unsafe stored procedure</td><td>Procedure menerima parameter, tetapi kemudian menyusun dynamic SQL secara tidak aman.</td><td>Periksa isi procedure, bukan hanya cara pemanggilannya.</td></tr>
+<tr><td>ORM/query builder misuse</td><td>Developer memasukkan input ke raw query atau ekspresi query dinamis.</td><td>Periksa raw expression, raw where, dan query string.</td></tr>
+<tr><td>Second-order SQLi</td><td>Data disimpan terlebih dahulu, lalu digunakan kemudian dalam query yang tidak aman.</td><td>Telusuri aliran data dari penyimpanan hingga penggunaan ulang.</td></tr>
+<tr><td>Unsafe identifier selection</td><td>Input memengaruhi nama kolom, tabel, atau arah pengurutan tanpa allow-list.</td><td>Gunakan pemetaan nilai yang ditentukan aplikasi.</td></tr>
+</tbody></table></div>
+<p>Input validation tetap berguna untuk memastikan format dan aturan bisnis, tetapi validasi bukan pengganti parameterization. Escaping manual juga bukan pertahanan utama karena aturan escaping dapat berbeda antar-dialect dan konfigurasi.</p>
+</section>
+<section class="section" id="inputs"><div class="kicker">04 / Entry Points</div><h2>GET, POST, dan Sumber Input Lain</h2>
+<p>Diagram SQLi milik penulis dimulai dari GET dan POST. Keduanya adalah metode HTTP yang sering membawa input, tetapi bukan jenis SQL Injection. SQLi ditentukan oleh bagaimana aplikasi menggunakan nilai tersebut ketika membangun query.</p>
+<div class="grid">
+<div class="mini"><h3>GET</h3><p>Data sering berada pada URL/query string. Parameter pencarian, filter, pagination, dan identifier dapat menjadi input aplikasi.</p></div>
+<div class="mini"><h3>POST</h3><p>Data sering berada pada request body, misalnya form, JSON, atau payload API. POST tidak otomatis lebih aman daripada GET.</p></div>
+<div class="mini"><h3>Cookie & Header</h3><p>Nilai cookie, header khusus, atau metadata request dapat dipakai aplikasi dalam query.</p></div>
+<div class="mini"><h3>Other Data Sources</h3><p>Data dari API pihak ketiga, antrean, email, file import, atau database sendiri dapat menjadi sumber input tidak tepercaya.</p></div>
+</div>
+<p>Karena itu, pemeriksaan tidak boleh berhenti pada parameter URL. Telusuri data flow sampai ke query yang benar-benar dijalankan.</p>
+</section>
+<section class="section" id="indicators"><div class="kicker">05 / Observable Signals</div><h2>Indikasi dan Respons yang Perlu Dipahami</h2>
+<p>Diagram penulis menampilkan tiga respons awal: HTTP 500, tampilan blank, dan tampilan berubah atau memunculkan tulisan error. Ketiganya dapat menjadi petunjuk untuk ditinjau, tetapi tidak membuktikan SQLi dengan sendirinya.</p>
+<div class="table-wrap"><table><thead><tr><th>Indikasi</th><th>Kemungkinan penjelasan</th><th>Interpretasi yang hati-hati</th></tr></thead><tbody>
+<tr><td>HTTP 500</td><td>Exception aplikasi, query error, atau kegagalan komponen lain.</td><td>Perlu korelasi dengan log aplikasi/database; bukan bukti tunggal.</td></tr>
+<tr><td>Blank / respons kosong</td><td>Error yang disembunyikan, hasil query kosong, atau masalah rendering.</td><td>Bandingkan perilaku normal dan respons yang terkontrol.</td></tr>
+<tr><td>Konten berubah</td><td>Perbedaan hasil query, kondisi aplikasi, cache, atau data.</td><td>Pastikan perbedaan dapat direproduksi dan bukan variasi normal.</td></tr>
+<tr><td>Database error</td><td>Pesan error dari driver/DBMS atau exception yang diteruskan aplikasi.</td><td>Dapat mengungkap dialect, struktur query, atau detail internal.</td></tr>
+<tr><td>Perbedaan waktu respons</td><td>Operasi database, beban server, jaringan, atau kondisi lain.</td><td>Time-based inference memerlukan pengukuran berulang dan kontrol noise.</td></tr>
+</tbody></table></div>
+<div class="callout warn">Jangan menyimpulkan SQLi hanya dari status 500, halaman blank, atau respons lambat. Gunakan bukti yang dapat diulang, log yang relevan, dan pengujian yang berada dalam scope izin.</div>
+</section>
+<section class="section" id="types"><div class="kicker">06 / Classification</div><h2>Jenis-Jenis SQL Injection</h2>
+<p>Jenis SQLi dapat dikelompokkan berdasarkan cara hasil atau kondisi query dapat diamati. Istilah berikut sering dipakai dalam materi keamanan aplikasi.</p>
+<div class="card"><h3>In-band SQL Injection</h3><p>Hasil dari query yang terpengaruh dapat diamati melalui kanal respons aplikasi yang sama. Dua bentuk yang sering dibahas adalah Error-based dan UNION-based.</p></div>
+<div class="grid">
+<div class="mini"><h3>Error-based</h3><p>Informasi diperoleh dari error database atau pesan exception yang muncul. Detail error dapat membocorkan struktur internal, tetapi konfigurasi error handling sangat memengaruhi visibilitasnya.</p></div>
+<div class="mini"><h3>UNION-based</h3><p>Konsepnya menggabungkan hasil query lain ke result set yang ditampilkan aplikasi. Kelayakannya dipengaruhi bentuk query awal, kompatibilitas kolom dan tipe data, serta cara aplikasi merender hasil.</p></div>
+<div class="mini"><h3>Boolean-based Blind</h3><p>Hasil disimpulkan dari perbedaan respons ketika kondisi bernilai benar atau salah, walaupun data query tidak ditampilkan secara langsung.</p></div>
+<div class="mini"><h3>Time-based Blind</h3><p>Inferensi dilakukan melalui perbedaan waktu respons yang dipicu kondisi database. Latensi jaringan, beban server, dan timeout dapat menghasilkan noise.</p></div>
+</div>
+<div class="card"><h3>Stacked Queries</h3><p>Terjadi ketika konteks eksekusi memungkinkan lebih dari satu statement diproses dalam satu rangkaian. Dukungan ini bergantung pada DBMS, driver, API database, dan konfigurasi aplikasi. Tidak semua koneksi mengizinkannya.</p></div>
+<div class="card"><h3>Out-of-band (OOB)</h3><p>Informasi atau sinyal dikirim melalui kanal berbeda dari respons HTTP utama, misalnya interaksi jaringan yang dipicu DBMS. Ini bukan fitur universal dan sangat bergantung pada kemampuan DBMS, konfigurasi jaringan, serta hak akses.</p></div>
+<div class="callout"><strong>Catatan klasifikasi:</strong> “OOB / Query varian” pada diagram penulis mencampur dua istilah yang tidak sepenuhnya setara. Out-of-band adalah kategori berdasarkan kanal komunikasi; query variant bukan klasifikasi standar yang berdiri sejajar. Keduanya perlu dibaca sebagai catatan terpisah.</div>
+</section>
+<section class="section" id="dbms"><div class="kicker">07 / Database Platforms</div><h2>DBMS yang Umum Ditemui pada Aplikasi Web</h2>
+<p>SQL adalah bahasa query, sedangkan DBMS adalah perangkat lunak yang mengelola database. SQLi bukan hanya terjadi pada satu produk. Dialect SQL, fungsi bawaan, model privilege, driver, dan konfigurasi berbeda antar-DBMS.</p>
+<div class="table-wrap"><table><thead><tr><th>DBMS</th><th>Karakteristik umum</th><th>Hal yang membedakan analisis</th></tr></thead><tbody>
+<tr><td>MySQL / MariaDB</td><td>Banyak dipakai pada aplikasi web berbasis PHP dan berbagai CMS.</td><td>Privilege akun, fungsi file, konfigurasi <code>secure_file_priv</code>, versi, dan storage engine.</td></tr>
+<tr><td>PostgreSQL</td><td>Digunakan pada aplikasi web, layanan backend, dan sistem data.</td><td>Role, extension, hak operasi file/program, konfigurasi server, dan versi.</td></tr>
+<tr><td>Microsoft SQL Server</td><td>Sering ditemukan pada ekosistem aplikasi Microsoft/.NET dan enterprise.</td><td>Login/role, server configuration, extended stored procedures, service account, dan fitur integrasi Windows.</td></tr>
+<tr><td>Oracle Database</td><td>Umum pada sistem enterprise dan aplikasi bisnis berskala besar.</td><td>Schema, role/system privilege, package, directory object, dan konfigurasi layanan.</td></tr>
+<tr><td>SQLite</td><td>Database embedded berbasis file; sering dipakai aplikasi kecil, desktop, mobile, atau layanan tertentu.</td><td>Hak akses file proses aplikasi, lokasi file database, dan batas kemampuan server-side yang berbeda dari DBMS client-server.</td></tr>
+</tbody></table></div>
+<p>Daftar ini bukan ranking target atau daftar lengkap. DBMS yang digunakan harus dipastikan dari bukti yang sahih, misalnya konfigurasi yang memang tersedia untuk reviewer, dokumentasi aplikasi, atau error disclosure yang sudah diverifikasi.</p>
+</section>
+<section class="section" id="impact"><div class="kicker">08 / Security Impact</div><h2>Apa Dampak SQL Injection?</h2>
+<p>Dampak tidak ditentukan oleh label SQLi saja. Dampak aktual merupakan gabungan dari data yang dapat dijangkau, operasi yang diizinkan, privilege akun database, konfigurasi DBMS, dan kontrol pada lapisan aplikasi maupun sistem operasi.</p>
+<div class="grid">
+<div class="mini"><h3>Data confidentiality</h3><p>Pembacaan data yang tidak semestinya, termasuk informasi akun, data pribadi, konfigurasi, atau data bisnis.</p></div>
+<div class="mini"><h3>Data integrity</h3><p>Perubahan, penambahan, atau penghapusan record jika query dan privilege memungkinkan operasi tersebut.</p></div>
+<div class="mini"><h3>Authentication impact</h3><p>Gangguan terhadap logika login atau sesi dalam kondisi tertentu. Ini tidak otomatis berarti akses administrator.</p></div>
+<div class="mini"><h3>Availability impact</h3><p>Operasi database yang berat atau destruktif dapat mengganggu layanan, bergantung pada query dan kontrol sistem.</p></div>
+<div class="mini"><h3>File-system impact</h3><p>Fitur tertentu dapat membaca atau menulis file dengan batasan hak akses dan konfigurasi DBMS.</p></div>
+<div class="mini"><h3>Operating-system impact</h3><p>Pada konfigurasi tertentu, fitur DBMS atau integrasi eksternal dapat menjadi jembatan menuju operasi sistem operasi.</p></div>
+</div>
+<div class="callout danger"><strong>Jangan menyamakan kemungkinan dengan hasil:</strong> SQLi tidak otomatis memberikan seluruh database, akses admin, file system, RCE, atau persistence. Setiap dampak memerlukan prasyarat dan bukti tersendiri.</div>
+</section>
+<section class="section" id="branches"><div class="kicker">09 / ZeroHitman Branching</div><h2>Percabangan SQL Injection</h2>
+<p>Bagian ini mempertahankan kelompok cabang yang sudah ditulis pada Tree V5.0. Fungsinya adalah peta kemungkinan yang perlu dipahami dan diverifikasi, bukan checklist eksploitasi dan bukan urutan yang wajib ditempuh.</p>
+<div class="table-wrap"><table><thead><tr><th>Cabang pada Tree V5.0</th><th>Makna konseptual</th><th>Hasil/informasi yang mungkin relevan</th></tr></thead><tbody>
+<tr><td><strong>1. Data Extraction</strong></td><td>Akses baca terhadap data yang dapat dijangkau query.</td><td>Struktur tabel, data akun, konfigurasi, log, session, data transaksi, dan metadata schema.</td></tr>
+<tr><td><strong>2. File Read</strong></td><td>Kemungkinan pembacaan file melalui kemampuan DBMS atau komponen terkait.</td><td>File konfigurasi atau informasi sistem, hanya jika fitur, privilege, dan kebijakan file mengizinkan.</td></tr>
+<tr><td><strong>3. File Write</strong></td><td>Kemungkinan menulis file melalui fitur database tertentu.</td><td>File output pada lokasi yang diizinkan; tidak otomatis dapat ditulis ke webroot atau dieksekusi.</td></tr>
+<tr><td><strong>4. UDF / Extension</strong></td><td>Fitur ekstensi atau fungsi tambahan yang memperluas kemampuan database.</td><td>Perubahan capability DBMS; risiko tinggi bila instalasi atau pemanggilannya memiliki privilege berlebihan.</td></tr>
+<tr><td><strong>5. Stacked Queries</strong></td><td>Lebih dari satu statement diproses dalam konteks yang mendukungnya.</td><td>Potensi operasi data tambahan sesuai hak akses; dukungan tidak universal.</td></tr>
+<tr><td><strong>6. OS Command / DBMS Feature</strong></td><td>Fitur DBMS tertentu dapat berinteraksi dengan proses atau sistem operasi.</td><td>Potensi dampak pada host database, bergantung pada fitur, konfigurasi, dan identitas service.</td></tr>
+<tr><td><strong>7. Network / Outbound Interaction</strong></td><td>Fungsi DBMS dapat memicu interaksi jaringan tertentu.</td><td>Informasi tentang konektivitas keluar atau kebocoran sinyal; bukan SSRF generik dalam setiap kasus.</td></tr>
+<tr><td><strong>8. Information Gathering</strong></td><td>Pengumpulan metadata dan konteks database.</td><td>Versi, nama database, user/role aktif, hostname, lokasi data, dan error detail.</td></tr>
+<tr><td><strong>9. Authentication Logic</strong></td><td>Query aplikasi yang terkait proses autentikasi dapat memiliki kelemahan logika.</td><td>Gangguan autentikasi atau otorisasi dalam kondisi tertentu; harus dibuktikan terpisah.</td></tr>
+</tbody></table></div>
+<div class="callout warn">Beberapa nama pada Tree V5.0 seperti “UDF Exploitation”, “SSRF via SQL”, dan “Auth Bypass” adalah label cabang investigasi. Secara teknis, hubungan tersebut harus dijelaskan berdasarkan mekanisme yang sebenarnya, bukan dianggap sebagai kemampuan bawaan setiap SQLi.</div>
+</section>
+<section class="section" id="file"><div class="kicker">10 / File-system Capabilities</div><h2>File Read, File Write, dan INTO OUTFILE</h2>
+<h3>File Read</h3><p>File read berarti DBMS atau fungsi terkait dapat membaca file dari sudut pandang server database. Hal ini berbeda dari membaca file melalui web server atau aplikasi. File yang terlihat oleh database dipengaruhi sistem operasi, permission akun service, sandboxing, dan kebijakan DBMS.</p>
+<h3>MySQL: LOAD_FILE dan SELECT ... INTO OUTFILE</h3><p>MySQL menyediakan kemampuan file tertentu, tetapi penggunaannya dibatasi oleh privilege <code>FILE</code>, izin filesystem dari proses server, serta konfigurasi <code>secure_file_priv</code>. Pengaturan ini dapat membatasi operasi ke direktori tertentu atau menonaktifkan operasi import/export file.</p>
+<p><code>SELECT ... INTO OUTFILE</code> adalah mekanisme output hasil query ke file. Keberadaan fitur tersebut tidak berarti file dapat ditulis ke lokasi apa pun, ditimpa bebas, atau otomatis dieksekusi oleh web server.</p>
+<h3>Perbedaan lintas DBMS</h3><p>Jangan menggeneralisasi nama fitur MySQL ke PostgreSQL, SQL Server, atau Oracle. PostgreSQL memiliki mekanisme <code>COPY</code> dengan aturan akses server-side dan privilege tersendiri. SQL Server dan Oracle memiliki fitur, model permission, serta kontrol berbeda.</p>
+<div class="callout">Dalam dokumentasi ZeroHitman, istilah “File Read” dan “File Write” menunjukkan kategori kemampuan yang perlu diperiksa. Setiap temuan harus mencatat DBMS, versi, akun database, hak akses, konfigurasi, lokasi file, dan identitas proses yang relevan.</div>
+</section>
+<section class="section" id="rce"><div class="kicker">11 / Host Impact</div><h2>SQL Injection dan Kemungkinan RCE</h2>
+<p>Remote Code Execution (RCE) adalah dampak ketika input atau operasi yang dipengaruhi dari jarak jauh akhirnya menyebabkan perintah atau kode dijalankan pada host. SQLi dapat menjadi bagian dari rantai menuju RCE, tetapi bukan konsekuensi otomatis dari SQLi.</p>
+<p>Jalur potensial berbeda antar-platform. Contohnya, SQL Server mempunyai fitur <code>xp_cmdshell</code> yang dapat menjalankan command pada konteks akun service/proxy terkait, tetapi fitur ini dinonaktifkan secara default pada instalasi baru dan membutuhkan permission tinggi. PostgreSQL mempunyai bentuk <code>COPY ... PROGRAM</code> yang menjalankan program pada konteks server dan dibatasi ke role tertentu. MySQL memiliki fitur file/UDF dengan prasyarat berbeda; file write saja belum sama dengan eksekusi kode.</p>
+<div class="table-wrap"><table><thead><tr><th>Faktor</th><th>Pertanyaan penilaian</th><th>Mengapa penting</th></tr></thead><tbody>
+<tr><td>DBMS & version</td><td>Produk, versi, dan fitur apa yang tersedia?</td><td>Fitur dan perilaku berbeda antar-versi.</td></tr>
+<tr><td>Database privilege</td><td>Apa hak akun database yang digunakan aplikasi?</td><td>Menentukan operasi yang diizinkan.</td></tr>
+<tr><td>Feature configuration</td><td>Apakah fitur berisiko diaktifkan?</td><td>Banyak fitur dibatasi atau dinonaktifkan secara default.</td></tr>
+<tr><td>OS service identity</td><td>Dengan identitas OS apa service database berjalan?</td><td>Menentukan jangkauan akses proses pada host.</td></tr>
+<tr><td>Filesystem & network</td><td>Path dan koneksi apa yang diizinkan?</td><td>Kontrol host dapat membatasi dampak lanjutan.</td></tr>
+<tr><td>Application isolation</td><td>Apakah database dan aplikasi dipisahkan?</td><td>Segmentasi mengurangi kemungkinan perpindahan dampak.</td></tr>
+</tbody></table></div>
+<div class="callout danger"><strong>Terminologi yang tepat:</strong> “SQLi berpotensi berujung RCE pada kondisi tertentu” lebih akurat daripada “SQLi menghasilkan RCE”. Jangan menyebut RCE tanpa bukti eksekusi pada host dan konteks proses yang jelas.</div>
+</section>
+<section class="section" id="limits"><div class="kicker">12 / Preconditions</div><h2>Kondisi yang Menentukan Cabang</h2>
+<p>Diagram penulis membedakan “Non Super Admin” dan “Super Admin”. Pembeda ini dapat dipakai sebagai pengingat bahwa privilege penting, tetapi jangan menganggap hanya ada dua level. Setiap DBMS mempunyai model role dan permission yang lebih rinci.</p>
+<div class="card"><h3>Membaca dua kelompok kondisi pada diagram penulis</h3>
+<p><strong>Non Super Admin:</strong> diagram menyebut pencarian username/password, pemeriksaan hash, dan kemungkinan menemukan jalur upload aplikasi. Ini bukan dampak otomatis SQLi. Pengungkapan credential bergantung pada data yang dapat dibaca; pemeriksaan hash harus dilakukan sebagai audit offline yang disetujui; sedangkan upload dan eksekusi file merupakan permukaan aplikasi terpisah yang memerlukan kelemahan serta prasyarat tersendiri.</p>
+<p><strong>Super Admin:</strong> diagram mengaitkan privilege tinggi dengan file read, file write, dan kemungkinan RCE pada DBMS tertentu. Secara teknis, privilege tinggi dapat memperbesar dampak, tetapi tetap tidak menjamin akses ke semua file atau eksekusi perintah sistem. Fitur DBMS, konfigurasi, izin OS, service identity, dan isolasi host tetap menentukan.</p>
+<p><strong>Backdoor / persistence:</strong> istilah ini pada diagram sebaiknya dipahami sebagai risiko lanjutan yang perlu dinilai dalam threat model, bukan hasil normal atau langkah wajib setelah SQLi. Dalam pengujian resmi, validasi dampak harus menggunakan bukti minimal yang disepakati dan tidak meninggalkan mekanisme akses tersembunyi.</p>
+</div>
+<div class="grid">
+<div class="mini"><h3>Database account</h3><p>Akun aplikasi mungkin hanya memiliki hak SELECT pada tabel tertentu, atau justru mendapat hak administratif yang terlalu luas.</p></div>
+<div class="mini"><h3>DBMS capability</h3><p>Fitur yang tersedia dan diaktifkan berbeda antar produk, versi, extension, dan konfigurasi.</p></div>
+<div class="mini"><h3>Filesystem permission</h3><p>Proses database hanya dapat mengakses file sesuai hak OS dan aturan khusus DBMS.</p></div>
+<div class="mini"><h3>Network boundary</h3><p>Firewall, egress policy, DNS, dan segmentasi dapat membatasi interaksi keluar.</p></div>
+<div class="mini"><h3>Application behavior</h3><p>Apakah hasil query ditampilkan, disimpan, dipakai sebagai kondisi, atau hanya memengaruhi proses internal?</p></div>
+<div class="mini"><h3>Monitoring & controls</h3><p>Logging, alerting, WAF, database audit, dan rate limit memengaruhi deteksi dan pembatasan dampak.</p></div>
+</div>
+<p>Karena itu, dua aplikasi yang sama-sama memiliki SQLi dapat menghasilkan dampak yang sangat berbeda. Label vulnerability tidak cukup untuk menyimpulkan tingkat akses.</p>
+</section>
+<section class="section" id="investigation"><div class="kicker">13 / Investigation Mindset</div><h2>Menghubungkan SQLi dengan Temuan Lain</h2>
+<p>Dalam metodologi ZeroHitman, SQLi bukan halaman yang berdiri sendiri. Informasi yang diperoleh dapat menjadi petunjuk untuk memeriksa cabang lain. Hubungan tersebut disebut <strong>cross-technique relationship</strong>, bukan berarti teknik lain otomatis berhasil.</p>
+<div class="table-wrap"><table><thead><tr><th>Informasi / kondisi yang ditemukan</th><th>Pertanyaan lanjutan</th><th>Relasi materi</th></tr></thead><tbody>
+<tr><td>Source fragment atau struktur query</td><td>Apakah ada alur input lain atau query lain yang perlu ditinjau?</td><td>Source Leak / Code Review</td></tr>
+<tr><td>Path atau lokasi file</td><td>Apakah informasi path relevan dengan file handling aplikasi?</td><td>LFI / Path Traversal</td></tr>
+<tr><td>Credential atau secret</td><td>Apakah secret masih aktif, apa scope-nya, dan apakah pemilikannya dapat diverifikasi?</td><td>Credential Exposure</td></tr>
+<tr><td>DBMS dan versi</td><td>Fitur dan security advisory apa yang relevan dengan versi serta konfigurasi ini?</td><td>CVE Research</td></tr>
+<tr><td>Role/privilege database</td><td>Apakah hak akses sesuai kebutuhan aplikasi dan prinsip least privilege?</td><td>Privilege Review</td></tr>
+<tr><td>File operation capability</td><td>Apakah kontrol filesystem dan isolasi service membatasi kemampuan tersebut?</td><td>Host Configuration Review</td></tr>
+</tbody></table></div>
+<div class="callout good"><strong>Pola pikir utama:</strong> temuan SQLi menghasilkan pertanyaan baru. Kumpulkan bukti, klasifikasikan informasi, uji relevansinya dalam scope yang diizinkan, lalu tentukan cabang berikutnya. Jangan memaksakan semua cabang hanya karena tercantum di Tree.</div>
+</section>
+<section class="section" id="defense"><div class="kicker">14 / Prevention</div><h2>Pencegahan dan Mitigasi</h2>
+<ol class="steps">
+<li><strong>Gunakan parameterized queries / prepared statements.</strong><br>Struktur SQL dipisahkan dari nilai input. Jangan membangun query dengan menyisipkan input langsung ke string.</li>
+<li><strong>Gunakan allow-list untuk identifier dinamis.</strong><br>Nama tabel, nama kolom, dan arah sorting umumnya tidak dapat diperlakukan seperti value parameter. Petakan pilihan ke nilai tetap yang dikendalikan aplikasi.</li>
+<li><strong>Tinjau stored procedure dan dynamic SQL.</strong><br>Parameterized call tidak otomatis aman jika isi procedure membangun dynamic SQL secara tidak aman.</li>
+<li><strong>Batasi privilege database.</strong><br>Akun aplikasi seharusnya hanya memiliki permission minimum yang diperlukan. Hindari akun DBA/admin untuk operasi aplikasi sehari-hari.</li>
+<li><strong>Batasi fitur file dan OS integration.</strong><br>Nonaktifkan fitur yang tidak diperlukan, batasi directory access, service identity, extension, dan kemampuan menjalankan program.</li>
+<li><strong>Kelola error dengan aman.</strong><br>Jangan menampilkan query, stack trace, credential, path internal, atau detail DBMS kepada pengguna umum. Simpan detail yang diperlukan di log terproteksi.</li>
+<li><strong>Uji query construction secara berkala.</strong><br>Review source code, raw query, ORM, stored procedure, dan alur data dari semua sumber input.</li>
+<li><strong>Monitor dan siapkan respons insiden.</strong><br>Aktifkan audit yang sesuai, pantau query tidak biasa, lindungi backup, dan siapkan prosedur rotasi secret jika terjadi exposure.</li>
+</ol>
+</section>
+<section class="section" id="summary"><div class="kicker">15 / Key Takeaways</div><h2>Kesimpulan</h2>
+<div class="card"><p class="lead">SQL Injection adalah masalah pemisahan data dan instruksi SQL. Dampaknya dapat berkisar dari pengungkapan data sampai gangguan integritas, file-system impact, bahkan kemungkinan OS-level impact pada kondisi khusus.</p>
+<ul>
+<li>GET dan POST adalah cara membawa input, bukan jenis SQLi.</li>
+<li>Error 500, blank response, atau perubahan tampilan adalah indikasi, bukan bukti tunggal.</li>
+<li>Error-based, UNION-based, Boolean-based, Time-based, Stacked Queries, dan Out-of-band memiliki karakteristik serta prasyarat berbeda.</li>
+<li>DBMS, versi, privilege, konfigurasi, filesystem, dan network boundary menentukan cabang yang mungkin.</li>
+<li>File read, file write, dan RCE tidak otomatis tersedia hanya karena SQLi ditemukan.</li>
+<li>Informasi dari satu temuan dapat mengarahkan pemeriksaan teknik lain, tetapi setiap hubungan harus dibuktikan.</li>
+</ul></div>
+<p>Tujuan mempelajari SQLi bukan menghafal satu rangkaian payload. Tujuannya adalah memahami akar masalah, mengetahui bagaimana database memproses query, mengenali kondisi yang membatasi dampak, dan mampu membaca bukti untuk menentukan arah investigasi berikutnya.</p>
+<div class="pillrow"><a class="pill" href="tree.html">← Kembali ke Investigation Tree</a><a class="pill" href="lfi.html">Materi berikutnya: LFI →</a></div>
+</section>
+<section class="section" id="references"><div class="kicker">Further Reading</div><h2>Referensi Teknis</h2>
+<p>Sumber berikut digunakan untuk memeriksa konsep, batasan fitur DBMS, dan rekomendasi mitigasi. Dokumentasi resmi produk sebaiknya selalu disesuaikan dengan versi yang benar-benar digunakan.</p>
+<ul class="ref-list">
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — SQL Injection Prevention Cheat Sheet</a> (akar masalah, dampak, parameterized queries, least privilege).</li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — Query Parameterization Cheat Sheet</a> (pola pencegahan lintas bahasa).</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html" target="_blank" rel="noopener">MySQL 8.4 Reference Manual — secure_file_priv</a> (batasan file import/export dan LOAD_FILE).</li>
+<li><a href="https://www.postgresql.org/docs/current/sql-copy.html" target="_blank" rel="noopener">PostgreSQL Documentation — COPY</a> (operasi file dan PROGRAM beserta prasyarat server-side).</li>
+<li><a href="https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/xp-cmdshell-server-configuration-option" target="_blank" rel="noopener">Microsoft Learn — xp_cmdshell Server Configuration</a> (konfigurasi dan rekomendasi keamanan).</li>
+<li><a href="https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql" target="_blank" rel="noopener">Microsoft Learn — xp_cmdshell (Transact-SQL)</a> (permission dan konteks proses).</li>
+</ul>
+</section>
+</main></div>
+<footer class="footer"><div class="wrap footerrow"><span>ZeroHitman — Security Research Documentation</span><span>Educational reference · Use only within authorized scope</span></div></footer>
+<a class="backtop" href="#top" aria-label="Kembali ke atas">↑</a>
+</body>
+</html>

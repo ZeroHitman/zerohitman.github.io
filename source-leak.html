@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ZeroHitman: dokumentasi Source Leak dan repository exposure, mencakup Git, SVN, Mercurial, source review, history, konfigurasi, dependency, attack surface, dampak, dan mitigasi.">
+<meta name="theme-color" content="#080d18">
+<title>Source Leak — ZeroHitman Documentation</title>
+<link rel="stylesheet" href="assets/css/docs.css">
+  <link rel="canonical" href="https://zerohitman.github.io/source-leak.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+</head>
+<body id="top">
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="index.html"><img src="hitman.png" alt="ZeroHitman logo"><span>ZEROHITMAN<small>SECURITY RESEARCH DOCUMENTATION</small></span></a>
+<nav class="navlinks" aria-label="Navigasi utama"><a href="index.html">Home</a><a href="tree.html">Investigation Tree</a><a href="sqli.html">SQLi</a><a href="lfi.html">LFI</a><a href="conclusion.html">Conclusion</a></nav>
+</div></header>
+<div class="wrap">
+<section class="hero">
+<div class="eyebrow">ZeroHitman · Technique Reference 04</div>
+<h1>Source <span style="color:var(--cyan)">Leak</span></h1>
+<p>Memahami bagaimana repository atau source code yang terekspos dapat memberikan konteks tentang aplikasi: struktur kode, riwayat perubahan, konfigurasi, dependency, endpoint, dan kemungkinan kelemahan lain. Satu exposure bukan otomatis akses ke server, tetapi dapat menjadi sumber informasi untuk investigasi lanjutan.</p>
+<div class="pills"><span class="pill">Repository Exposure</span><span class="pill">Source Code Review</span><span class="pill">Information Disclosure</span><span class="pill">Investigation Branching</span></div>
+</section>
+<div class="layout">
+<aside class="toc"><h2>Daftar Isi</h2><ol>
+<li><a href="#intro">Pengertian Source Leak</a></li><li><a href="#repo">Git, SVN, dan Mercurial</a></li><li><a href="#exposure">Mengapa Exposure Terjadi</a></li><li><a href="#what">Informasi yang Bisa Diperoleh</a></li><li><a href="#source-review">Source Code Analysis</a></li><li><a href="#history">Version History</a></li><li><a href="#config">Configuration Analysis</a></li><li><a href="#dependencies">Dependency Analysis</a></li><li><a href="#surface">Attack Surface Discovery</a></li><li><a href="#security-review">Menilai Kandidat Vulnerability</a></li><li><a href="#branches">Percabangan Tree V5.0</a></li><li><a href="#cross">Cross-Technique Relationships</a></li><li><a href="#impact">Dampak dan Prioritas</a></li><li><a href="#response">Respons dan Mitigasi</a></li><li><a href="#summary">Kesimpulan</a></li><li><a href="#references">Referensi</a></li>
+</ol></aside>
+<main class="content">
+<section class="section" id="intro"><div class="tag">01 / Fundamentals</div><h2>Apa Itu Source Leak?</h2>
+<p class="lead"><strong>Source Leak</strong> dalam dokumentasi ini berarti source code, repository metadata, version history, atau file pengembangan yang seharusnya tidak dapat diakses publik ternyata terekspos melalui web server, storage, backup, atau mekanisme distribusi aplikasi.</p>
+<p>Exposure dapat berupa file source code individual, arsip backup, direktori repository seperti <code>.git</code>, <code>.svn</code>, atau <code>.hg</code>, maupun artefak build dan konfigurasi. Tingkat informasi yang terbuka berbeda-beda: sebagian hanya memperlihatkan nama file, sementara kondisi lain dapat memungkinkan pengambilan banyak bagian repository.</p>
+<div class="callout"><strong>Inti konsep ZeroHitman:</strong> Source Leak bukan hanya “mendapatkan source code”. Temuan ini dapat menjadi titik awal untuk memahami bagaimana aplikasi dibangun, data mengalir, fitur bekerja, komponen apa yang dipakai, dan area mana yang layak ditinjau lebih lanjut.</div>
+<div class="callout warning"><strong>Batas interpretasi:</strong> repository exposure tidak otomatis berarti server telah dikuasai, credential yang terlihat masih aktif, atau setiap kandidat bug dapat dieksploitasi. Setiap temuan perlu diverifikasi sesuai scope, bukti, dan kondisi aktual.</div>
+</section>
+<section class="section" id="repo"><div class="tag">02 / Version Control</div><h2>Git, SVN, dan Mercurial</h2>
+<p>Version Control System (VCS) menyimpan perubahan source code dari waktu ke waktu. VCS membantu developer bekerja bersama, membandingkan perubahan, membuat branch, dan memulihkan versi sebelumnya. Metadata dan history yang bermanfaat bagi developer dapat menjadi sensitif jika ikut dipublikasikan tanpa sengaja.</p>
+<div class="table-wrap"><table><thead><tr><th>VCS</th><th>Metadata umum</th><th>Hal yang perlu dipahami</th></tr></thead><tbody>
+<tr><td><strong>Git</strong></td><td><code>.git/</code></td><td>Object database, references, index, dan reflogs. File repository bukan sekadar folder source biasa.</td></tr>
+<tr><td><strong>Subversion (SVN)</strong></td><td><code>.svn/</code></td><td>Working-copy metadata dan informasi administrasi lokal; struktur dan perilakunya berbeda dari Git.</td></tr>
+<tr><td><strong>Mercurial (Hg)</strong></td><td><code>.hg/</code></td><td>Repository metadata dan revlog yang menyimpan revision history.</td></tr>
+</tbody></table></div>
+<p>Jangan menganggap ketiganya memiliki struktur, format, atau cara pemulihan data yang sama. Penilaian harus mengikuti VCS yang benar-benar digunakan dan versi/konfigurasi yang ditemukan.</p>
+<p>Dalam Git, model data inti mencakup objects (commit, tree, blob, tag), references, index, dan reflogs. Karena itu, exposure direktori <code>.git</code> berpotensi mengungkap lebih dari file yang sedang terlihat pada halaman website.</p>
+</section>
+<section class="section" id="exposure"><div class="tag">03 / Root Causes</div><h2>Mengapa Repository Bisa Terekspos?</h2>
+<div class="flow"><article><b>Development</b><span class="muted">Repository berada di direktori kerja developer atau build.</span></article><article><b>Deployment</b><span class="muted">Artefak development ikut tersalin ke web root atau image produksi.</span></article><article><b>Public Access</b><span class="muted">Konfigurasi server tidak memblokir akses ke metadata atau file internal.</span></article></div>
+<p>Beberapa penyebab yang umum:</p><ul>
+<li><strong>Document root terlalu luas:</strong> direktori yang disajikan web server mencakup repository atau file pengembangan.</li>
+<li><strong>Deployment tidak bersih:</strong> folder VCS, backup, arsip, file sementara, atau konfigurasi ikut terunggah.</li>
+<li><strong>Aturan deny tidak lengkap:</strong> server hanya memblokir pola tertentu, atau aturan tidak berlaku pada lokasi/alias yang digunakan.</li>
+<li><strong>Static file serving terlalu permisif:</strong> file tersembunyi atau file tanpa ekstensi yang dianggap berbahaya tetap dapat dilayani.</li>
+<li><strong>Salinan atau backup:</strong> arsip source, dump, atau salinan lama tertinggal di lokasi publik.</li>
+</ul>
+<div class="callout warning">Menghapus link dari halaman website tidak sama dengan membatasi akses. Kontrol harus diterapkan pada web server, storage, deployment pipeline, dan permission repository.</div>
+</section>
+<section class="section" id="what"><div class="tag">04 / Information Mapping</div><h2>Informasi Apa yang Bisa Diperoleh?</h2>
+<p>Nilai Source Leak ditentukan oleh isi yang benar-benar tersedia. Tidak semua repository berisi secret atau kelemahan. Mulailah dengan mengklasifikasikan informasi, bukan langsung mengasumsikan dampaknya.</p>
+<div class="table-wrap"><table><thead><tr><th>Kategori</th><th>Contoh informasi</th><th>Nilai investigasi</th></tr></thead><tbody>
+<tr><td>Application structure</td><td>Folder, module, controller, model, service, template</td><td>Memahami arsitektur dan batas komponen.</td></tr>
+<tr><td>Configuration</td><td>Environment variable names, host, port, path, feature flags</td><td>Memahami konfigurasi dan dependensi runtime. Nilai rahasia harus diperlakukan sensitif.</td></tr>
+<tr><td>Credentials & secrets</td><td>Database password, API token, signing key, cloud credential</td><td>Potensi akses ke sistem lain jika masih valid dan memiliki permission.</td></tr>
+<tr><td>Version history</td><td>File yang dihapus, perubahan konfigurasi, commit message</td><td>Memahami perubahan lama dan konteks bug yang pernah diperbaiki.</td></tr>
+<tr><td>Dependencies</td><td>Package name, version constraints, lock files</td><td>Menentukan komponen dan versi untuk pemeriksaan advisories.</td></tr>
+<tr><td>Application routes</td><td>Route definitions, API paths, middleware</td><td>Memetakan attack surface dan kontrol akses yang perlu ditinjau.</td></tr>
+<tr><td>Infrastructure clues</td><td>Dockerfile, compose files, CI configuration, web server config</td><td>Memahami service topology dan proses deployment.</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="source-review"><div class="tag">05 / Code Understanding</div><h2>Source Code Analysis</h2>
+<p>Setelah source tersedia secara sah dalam scope assessment, langkah penting adalah memahami alur data dan batas kepercayaan. Pencarian kata kunci dapat membantu menemukan lokasi yang menarik, tetapi hasil pencarian bukan bukti vulnerability.</p>
+<h3>1. Secret dan credential references</h3><p>Periksa apakah kode atau konfigurasi memuat credential, token, key, certificate, atau endpoint internal. Bedakan <em>secret value</em> yang benar-benar tertanam dari nama environment variable atau placeholder. Jangan menyalin nilai rahasia ke report publik; catat lokasi, jenis, status validasi yang diizinkan, dan dampak potensial.</p>
+<h3>2. File inclusion dan file handling</h3><p>Telusuri bagaimana aplikasi membentuk path, memilih file, memproses upload, mengunduh file, atau menyajikan dokumen. Fokus pada alur input → validasi → operasi file → output, termasuk kontrol path dan authorization.</p>
+<h3>3. Database query</h3><p>Tinjau query yang dibangun secara dinamis, penggunaan raw query, parameter binding, stored procedure, serta aliran data dari request atau data tersimpan. Temuan source review dapat menjadi kandidat pemeriksaan SQL Injection, tetapi harus dibuktikan pada konteks kode dan konfigurasi yang relevan.</p>
+<h3>4. Dangerous sinks dan tainted input</h3><p>Fungsi seperti <code>eval</code>, <code>system</code>, process execution, deserialization, template rendering, atau pemanggilan HTTP perlu dinilai berdasarkan asal input, sanitasi, allow-list, dan kontrol yang mengelilinginya. Keberadaan fungsi saja tidak cukup untuk menyatakan vulnerability.</p>
+<h3>5. Authentication, authorization, dan routes</h3><p>Periksa middleware, policy, role checks, ownership checks, route groups, serta perbedaan antara autentikasi dan otorisasi. Route tersembunyi bukan otomatis route yang dapat diakses tanpa izin.</p>
+<div class="callout success"><strong>Metode berpikir:</strong> jangan berhenti pada “menemukan kata <code>system</code>”. Cari tahu siapa yang mengontrol nilai, bagaimana nilai mengalir, kontrol apa yang diterapkan, dan apakah jalur tersebut dapat dicapai dalam kondisi nyata.</div>
+</section>
+<section class="section" id="history"><div class="tag">06 / Historical Context</div><h2>Version History Analysis</h2>
+<p>Repository history dapat mempertahankan informasi yang sudah tidak terlihat pada versi aplikasi saat ini. File yang dihapus dari working tree belum tentu hilang dari history. Hal ini dapat membantu memahami evolusi aplikasi, tetapi juga membuat secret lama tetap sensitif.</p>
+<div class="grid">
+<div class="flow"><article><b>Commit changes</b><span class="muted">Apa yang ditambahkan atau diubah?</span></article><article><b>Deleted files</b><span class="muted">Apakah file lama mengandung konfigurasi atau kode penting?</span></article><article><b>Branch & tags</b><span class="muted">Apakah ada versi pengembangan atau release berbeda?</span></article></div>
+<div class="mini"><h3>Reflog dan metadata</h3><p>Reflogs mencatat perubahan references dalam repository lokal. Metadata commit dapat menunjukkan author, waktu, dan pesan commit. Email atau username developer adalah metadata identitas, bukan credential autentikasi.</p></div>
+</div>
+<p>Perhatikan perbedaan antara file yang pernah ada, file yang masih dapat dijangkau oleh references, dan data yang benar-benar dapat diambil dari exposure yang diamati. Jangan menyimpulkan seluruh history dapat diakses hanya karena satu endpoint metadata merespons.</p>
+<div class="callout warning"><strong>Catatan respons insiden:</strong> jika secret ditemukan dalam history, menghapus file pada commit terbaru tidak cukup. Pemilik sistem perlu mencabut atau merotasi secret terlebih dahulu, lalu menilai kebutuhan pembersihan history, forks, clones, cache, dan salinan lain.</div>
+</section>
+<section class="section" id="config"><div class="tag">07 / Configuration Review</div><h2>Configuration Analysis</h2>
+<p>File konfigurasi dapat mengungkap bagaimana aplikasi dijalankan dan layanan apa yang digunakannya. Namun, file yang hanya menunjukkan nama variable atau hostname belum tentu mengandung credential aktif.</p>
+<div class="table-wrap"><table><thead><tr><th>Artefak</th><th>Informasi yang mungkin ada</th><th>Hal yang perlu diverifikasi</th></tr></thead><tbody>
+<tr><td><code>.env</code> / sample env</td><td>DB connection, mail, cache, APP_KEY, service endpoints</td><td>Apakah file memuat nilai nyata atau placeholder? Apakah secret masih aktif?</td></tr>
+<tr><td><code>composer.json</code></td><td>PHP packages dan version constraints</td><td>Bandingkan dengan lock file dan versi runtime yang digunakan.</td></tr>
+<tr><td><code>package.json</code></td><td>Node packages dan scripts</td><td>Pastikan dependency yang digunakan pada deployment sesuai.</td></tr>
+<tr><td><code>requirements.txt</code></td><td>Python packages</td><td>Periksa versi terpasang, transitive dependencies, dan advisory yang relevan.</td></tr>
+<tr><td><code>Dockerfile</code> / Compose</td><td>Base image, service names, port mapping, build arguments</td><td>File mungkin berbeda dari konfigurasi produksi aktual.</td></tr>
+<tr><td><code>.htaccess</code> / web server config</td><td>Rewrite rules, document root clues, access restrictions</td><td>Pastikan file tersebut benar-benar digunakan oleh server.</td></tr>
+<tr><td>CI/CD configuration</td><td>Build steps, deployment jobs, variable names, artifact paths</td><td>Jangan menganggap nama variable sebagai nilai secret atau akses pipeline.</td></tr>
+</tbody></table></div>
+<p>Contoh penting: APP_KEY, JWT signing key, cloud key, dan database password memiliki fungsi serta dampak berbeda. Kebocoran salah satunya tidak boleh digeneralisasi menjadi “admin access” atau “RCE”. Dampak bergantung pada penggunaan, scope, validitas, dan kontrol yang diterapkan.</p>
+</section>
+<section class="section" id="dependencies"><div class="tag">08 / Software Composition</div><h2>Dependency Analysis</h2>
+<p>Dependency file memberi petunjuk mengenai library, framework, dan versi yang diminta aplikasi. Ini dapat membantu peneliti menentukan advisories atau CVE yang layak diperiksa.</p>
+<ul><li><strong>Manifest:</strong> menjelaskan dependency yang dideklarasikan dan batas versi.</li><li><strong>Lock file:</strong> biasanya memberi detail versi resolusi yang lebih spesifik, tetapi tetap perlu dibandingkan dengan artefak deployment.</li><li><strong>Transitive dependency:</strong> komponen dapat ditarik oleh dependency lain dan tidak selalu tercantum sebagai kebutuhan langsung.</li><li><strong>Runtime mismatch:</strong> repository yang terekspos belum tentu sama dengan kode yang sedang berjalan di production.</li></ul>
+<div class="callout"><strong>CVE lookup adalah langkah verifikasi, bukan kesimpulan.</strong> Cocokkan nama package, versi yang benar-benar digunakan, konfigurasi, komponen yang terjangkau, dan kondisi kerentanan. Jangan menyatakan aplikasi rentan hanya karena menemukan nama library yang pernah memiliki CVE.</div>
+</section>
+<section class="section" id="surface"><div class="tag">09 / Attack Surface</div><h2>New Attack Surface Discovery</h2>
+<p>Source code dan konfigurasi dapat membantu menyusun peta permukaan aplikasi. Tujuannya bukan menganggap setiap path sebagai celah, melainkan mengetahui komponen mana yang perlu diperiksa dalam scope.</p>
+<div class="grid">
+<div class="mini"><h3>Routes & endpoints</h3><p>Daftar route, API path, HTTP method, middleware, dan controller yang terhubung.</p></div>
+<div class="mini"><h3>Parameters</h3><p>Parameter request, filter, identifier, upload field, dan nilai yang memengaruhi operasi.</p></div>
+<div class="mini"><h3>Feature flags</h3><p>Debug mode, beta feature, test mode, atau konfigurasi yang mengubah perilaku aplikasi.</p></div>
+<div class="mini"><h3>Internal services</h3><p>Database, cache, queue, object storage, internal API, dan service dependencies.</p></div>
+</div>
+<p>Nama endpoint atau parameter yang ditemukan dari source perlu dibandingkan dengan route yang benar-benar aktif. Kode lama, route yang tidak diregistrasi, feature flag nonaktif, atau deployment yang berbeda dapat membuat informasi repository tidak mencerminkan attack surface production.</p>
+</section>
+<section class="section" id="security-review"><div class="tag">10 / Candidate Validation</div><h2>Menilai Kandidat Vulnerability dari Source</h2>
+<p>Source review sering menghasilkan <em>leads</em> atau kandidat temuan. Agar tidak menghasilkan false positive, gunakan alur penilaian yang konsisten:</p>
+<ol><li><strong>Identify:</strong> catat file, fungsi, route, dependency, dan konteks temuan.</li><li><strong>Trace:</strong> telusuri asal input sampai ke operasi sensitif (<em>source-to-sink</em>).</li><li><strong>Review controls:</strong> periksa validation, parameterization, authorization, allow-list, sandbox, dan error handling.</li><li><strong>Check reachability:</strong> tentukan apakah jalur kode aktif dan dapat dicapai dalam kondisi target.</li><li><strong>Validate safely:</strong> lakukan verifikasi hanya pada aset dan metode yang secara eksplisit diizinkan.</li><li><strong>Document:</strong> pisahkan fakta, indikasi, asumsi, dan dampak yang telah dibuktikan.</li></ol>
+<div class="callout warning">Hasil grep, nama fungsi berbahaya, dependency lama, atau route tersembunyi adalah petunjuk awal. Masing-masing memerlukan analisis konteks sebelum disebut vulnerability.</div>
+</section>
+<section class="section" id="branches"><div class="tag">11 / ZeroHitman Tree V5.0</div><h2>Percabangan Source Leak</h2>
+<p>Bagian ini mempertahankan enam kelompok utama dari Tree V5.0: Analisa Source Code, Git History, Config Analysis, Deserialization/Crypto, New Attack Surface, dan Backdoor/Supply Chain. Nama cabang dipertahankan agar pembaca dapat mencocokkan halaman ini dengan peta utama. Penjelasan di bawah memperjelas kondisi dan batas tiap cabang.</p>
+<div class="card"><h3>1. Analisa Source Code</h3><ul>
+<li><strong>DB creds:</strong> dapat menunjukkan konfigurasi akses database; validitas, privilege, network reachability, dan environment harus dinilai.</li><li><strong>SMTP creds:</strong> dapat memberi akses ke layanan email jika aktif dan diizinkan; bukan bukti otomatis bahwa phishing dapat atau boleh dilakukan.</li><li><strong>JWT secret:</strong> dapat memengaruhi kepercayaan token jika aplikasi benar-benar menggunakannya untuk signing dan tidak ada kontrol tambahan yang mencegah penyalahgunaan.</li><li><strong>API / cloud / payment key:</strong> dampak bergantung pada scope permission, environment, expiry, dan batas layanan.</li><li><strong>include/require:</strong> arahkan review ke validasi path dan file inclusion; bukan bukti LFI dengan sendirinya.</li><li><strong>SQL query:</strong> arahkan review ke query construction, binding, dan data flow; bukan bukti SQLi otomatis.</li><li><strong>Upload handler:</strong> tinjau type validation, storage location, filename handling, authorization, dan execution policy.</li><li><strong>eval/system, unserialize, curl_exec:</strong> lakukan taint analysis dan review kontrol; keberadaan fungsi tidak cukup untuk menyimpulkan RCE, deserialization flaw, atau SSRF.</li><li><strong>Route dan debug/test mode:</strong> petakan endpoint dan kondisi aktifnya, lalu verifikasi middleware serta konfigurasi runtime.</li>
+</ul></div>
+<div class="card"><h3>2. Git History</h3><ul><li><strong>Perubahan lama dan deleted files:</strong> dapat memperlihatkan kode atau konfigurasi yang tidak lagi ada pada versi terbaru.</li><li><strong>Reflog / metadata:</strong> dapat memberi konteks perubahan references dan identitas commit. Author email atau username bukan password.</li><li><strong><code>.git/config</code> dan remote URL:</strong> dapat mengungkap host repository atau struktur internal. Credential tertanam mungkin ada pada kasus tertentu, tetapi tidak boleh diasumsikan.</li><li><strong>Branch dan tag lain:</strong> dapat menunjukkan versi atau fitur berbeda. Keberadaan branch tidak otomatis berarti branch tersebut digunakan di production.</li></ul></div>
+<div class="card"><h3>3. Config Analysis</h3><ul><li><strong><code>.env</code>:</strong> periksa jenis konfigurasi dan apakah ada nilai rahasia nyata; APP_KEY tidak otomatis berarti cookie dapat dipalsukan atau akses admin didapat.</li><li><strong>Redis credentials:</strong> dapat menunjukkan kredensial cache/service. RCE bukan dampak otomatis; bergantung pada versi, konfigurasi, hak akses, jaringan, dan jalur yang tersedia.</li><li><strong>Composer, npm, dan Python manifests:</strong> menjadi dasar inventory dependency dan CVE lookup, lalu cocokkan dengan versi runtime.</li><li><strong>Dockerfile dan web server config:</strong> memberi petunjuk arsitektur, port, path, dan routing; belum tentu identik dengan production.</li></ul></div>
+<div class="card"><h3>4. Deserialization / Crypto</h3><ul><li><strong><code>unserialize()</code> dan PHAR-related behavior:</strong> periksa apakah data tidak tepercaya dapat mencapai proses deserialization, kelas yang tersedia, dan kondisi runtime. RCE tidak otomatis.</li><li><strong>Weak crypto:</strong> algoritma atau konfigurasi lama dapat menurunkan keamanan, tetapi dampak tergantung tujuan penggunaan dan data yang dilindungi.</li><li><strong>Hardcoded IV/salt:</strong> nilai statis dapat melemahkan desain tertentu; IV, salt, encryption key, dan password hash salt bukan hal yang sama.</li><li><strong>Custom JWT:</strong> review algoritma, key management, claim validation, expiry, issuer/audience, dan authorization. Custom implementation bukan otomatis authentication bypass.</li></ul></div>
+<div class="card"><h3>5. New Attack Surface</h3><ul><li><strong>Hidden endpoint dan admin endpoint:</strong> dapat memperluas peta route; tetap periksa autentikasi, authorization, dan apakah route aktif.</li><li><strong>Hidden parameter dan beta feature:</strong> dapat menunjukkan fungsi yang tidak terlihat pada UI; jangan menganggap parameter dapat mengaktifkan debug tanpa bukti.</li><li><strong>Internal API:</strong> pahami trust boundary dan akses yang dirancang. Pengujian harus tetap dalam scope dan tidak melewati batas izin.</li></ul></div>
+<div class="card"><h3>6. Backdoor / Supply Chain</h3><ul><li><strong>Backdoor in source:</strong> kode mencurigakan atau akses tersembunyi perlu ditinjau melalui konteks, provenance, dan perubahan yang tidak sah; jangan menyimpulkan backdoor hanya dari nama fungsi.</li><li><strong>Malicious build:</strong> periksa integritas build pipeline, artifact provenance, runner, dan proses deployment.</li><li><strong>Malicious dependency:</strong> tinjau sumber package, maintainer, perubahan versi, integrity metadata, dan perilaku yang tidak diharapkan.</li><li><strong>Hardcoded admin:</strong> periksa apakah akun/credential benar-benar aktif, bagaimana autentikasi dan authorization diterapkan, serta apakah konfigurasi hanya untuk test.</li></ul></div>
+<div class="callout success"><strong>Catatan:</strong> enam kelompok ini adalah kategori investigasi dari Tree V5.0, bukan daftar hasil yang pasti muncul pada setiap Source Leak.</div>
+</section>
+<section class="section" id="cross"><div class="tag">12 / Cross-Technique</div><h2>Hubungan Source Leak dengan Teknik Lain</h2>
+<p>Nilai terbesar Source Leak dalam pola pikir ZeroHitman adalah kemampuannya membuka konteks untuk cabang lain. Hubungan tersebut bersifat kondisional: informasi dari source dapat membantu menemukan kandidat vulnerability, tetapi bukan berarti vulnerability tersebut otomatis ada.</p>
+<div class="table-wrap"><table><thead><tr><th>Informasi dari Source Leak</th><th>Cabang investigasi yang mungkin relevan</th><th>Kondisi yang harus diperiksa</th></tr></thead><tbody>
+<tr><td>Query dinamis dan aliran input</td><td>SQL Injection</td><td>Input tidak tepercaya memengaruhi struktur query tanpa binding yang aman.</td></tr>
+<tr><td>File inclusion dan path handling</td><td>LFI / Path Traversal</td><td>Kontrol path lemah dan jalur kode dapat dicapai.</td></tr>
+<tr><td>Upload handler</td><td>Unrestricted File Upload / file handling flaw</td><td>Validasi, penyimpanan, akses, dan eksekusi file bermasalah.</td></tr>
+<tr><td>HTTP client atau URL fetcher</td><td>SSRF</td><td>Input mengontrol tujuan request dan kontrol egress/allow-list tidak memadai.</td></tr>
+<tr><td>Debug configuration dan exception handling</td><td>Information Disclosure / debug exposure</td><td>Informasi sensitif benar-benar terekspos pada runtime.</td></tr>
+<tr><td>Dependency dan versi framework</td><td>CVE research</td><td>Versi terpasang, konfigurasi, reachability, dan prasyarat advisory cocok.</td></tr>
+<tr><td>Credential atau signing key</td><td>Credential exposure / authentication review</td><td>Secret valid, scope memadai, dan penggunaan aktual dapat dibuktikan secara aman.</td></tr>
+<tr><td>Build pipeline dan dependency source</td><td>Supply-chain security</td><td>Ada bukti integritas atau provenance yang gagal, bukan hanya file build yang tersedia.</td></tr>
+</tbody></table></div>
+<p>Contoh pola pikir: menemukan file repository adalah temuan awal. Source code dapat memperlihatkan query builder yang perlu ditinjau; lock file dapat mengarahkan pemeriksaan dependency; konfigurasi dapat menunjukkan service yang digunakan. Masing-masing cabang dipilih berdasarkan bukti baru, bukan karena semua cabang harus dikejar.</p>
+</section>
+<section class="section" id="impact"><div class="tag">13 / Risk Assessment</div><h2>Dampak dan Prioritas</h2>
+<p>Dampak Source Leak tidak ditentukan hanya oleh nama direktori yang terekspos. Penilaian harus melihat kerahasiaan informasi, kemampuan pihak luar mengaksesnya, sensitivitas data, apakah secret masih berlaku, dan sistem lain yang bergantung padanya.</p>
+<ul><li><strong>Confidentiality:</strong> source code, desain internal, data konfigurasi, atau secret dapat terbaca.</li><li><strong>Integrity:</strong> dapat meningkat jika informasi yang terekspos juga membuka jalur akses yang sahnya terbatas dan kontrol lain gagal. Exposure sendiri tidak membuktikan kemampuan mengubah sistem.</li><li><strong>Availability:</strong> biasanya bukan dampak langsung repository exposure; perlu bukti jalur yang dapat mengganggu layanan.</li><li><strong>Business impact:</strong> secret pihak ketiga, payment integration, cloud permission, atau informasi pelanggan dapat memiliki konsekuensi berbeda.</li></ul>
+<p>Prioritaskan informasi berdasarkan sensitivitas, validitas, privilege, jangkauan akses, dan bukti penggunaan. Redact secret pada laporan dan simpan bukti sensitif dengan akses terbatas.</p>
+</section>
+<section class="section" id="response"><div class="tag">14 / Defense & Incident Response</div><h2>Mitigasi dan Respons</h2>
+<h3>Pencegahan</h3><ul><li>Jangan tempatkan repository metadata, backup, secret, atau artefak development di public web root.</li><li>Gunakan deployment artifact yang bersih dan allow-list file yang memang harus dipublikasikan.</li><li>Blokir akses ke metadata VCS dan file konfigurasi pada web server, tetapi jangan menjadikan rule tersebut satu-satunya kontrol.</li><li>Simpan secret di secret manager atau mekanisme konfigurasi yang sesuai; hindari hardcoding.</li><li>Terapkan least privilege, short-lived credentials bila memungkinkan, dan pemisahan environment.</li><li>Gunakan secret scanning pada commit/push dan pipeline CI/CD, serta review perubahan sebelum release.</li><li>Inventarisasi dependency dan pantau advisories dengan mencocokkan versi yang benar-benar digunakan.</li></ul>
+<h3>Jika exposure ditemukan</h3><ol><li>Batasi akses publik dan simpan bukti minimum yang diperlukan untuk investigasi.</li><li>Identifikasi jenis data dan secret yang mungkin terpapar tanpa menyebarkan nilai rahasia.</li><li>Cabut atau rotasi credential yang berpotensi terekspos; jangan menunggu pembersihan history selesai.</li><li>Tinjau log akses, penggunaan credential, repository clones/forks, cache, dan artifact lain sesuai kemampuan organisasi.</li><li>Jika perlu membersihkan history, rencanakan koordinasi karena rewrite dapat mengubah commit hash dan berdampak pada clone, branch, tag, serta workflow kolaborator.</li><li>Perbaiki deployment pipeline dan tambahkan kontrol pencegahan agar exposure tidak terulang.</li></ol>
+<div class="callout danger"><strong>Jangan menganggap menghapus file dari commit terbaru sudah menyelesaikan kebocoran.</strong> Secret dapat tetap ada di history, clone, fork, cache, atau salinan lain. Untuk credential, langkah pertama yang paling penting adalah revoke/rotate.</div>
+</section>
+<section class="section" id="summary"><div class="tag">15 / ZeroHitman Mindset</div><h2>Kesimpulan</h2>
+<p class="lead">Source Leak adalah pintu informasi. Nilai utamanya bukan sekadar memperoleh source code, melainkan menggunakan informasi yang tersedia untuk memahami aplikasi dan menentukan cabang investigasi berikutnya.</p>
+<p>Mulai dari memahami struktur repository, kemudian klasifikasikan source code, history, konfigurasi, dependency, dan attack surface. Pisahkan fakta dari asumsi. Sebuah credential mungkin sudah tidak aktif; sebuah dependency mungkin tidak digunakan di production; sebuah fungsi sensitif mungkin dilindungi validasi dan authorization.</p>
+<div class="callout success"><strong>Prinsip ZeroHitman:</strong> satu temuan dapat membuka banyak pertanyaan. Kumpulkan informasi yang relevan, nilai kualitasnya, lalu ikuti bukti. Tidak semua cabang harus ditempuh dan tidak semua petunjuk adalah vulnerability.</div>
+<div class="next-links"><a href="tree.html">← Kembali ke Investigation Tree</a><a href="laravel-ignition.html">Lanjut: Laravel Ignition →</a><a href="conclusion.html">Final Conclusion →</a></div>
+</section>
+<section class="section" id="references"><div class="tag">16 / Further Reading</div><h2>Referensi</h2><p>Referensi berikut digunakan untuk mendukung penjelasan mengenai model data Git, penanganan secret, dan konsekuensi penghapusan data sensitif dari repository. Detail implementasi SVN dan Mercurial dapat berbeda menurut versi dan konfigurasi.</p>
+<ul>
+<li><a href="https://git-scm.com/docs/gitdatamodel" target="_blank" rel="noopener noreferrer">Git Documentation — Git Data Model</a></li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer">OWASP — Secrets Management Cheat Sheet</a></li>
+<li><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository" target="_blank" rel="noopener noreferrer">GitHub Docs — Removing Sensitive Data from a Repository</a></li>
+<li><a href="https://docs.github.com/en/repositories/working-with-files/managing-files/deleting-files-in-a-repository" target="_blank" rel="noopener noreferrer">GitHub Docs — Deleting Files in a Repository</a></li>
+</ul>
+</section>
+</main></div>
+<footer class="footer"><div class="wrap"><div class="footer"><span>ZEROHITMAN · SECURITY RESEARCH DOCUMENTATION</span><span>Source Leak — Technique Reference</span><span><a href="tree.html">Investigation Tree</a> · <a href="#top">Back to top ↑</a></span></div></div></footer>
+</body></html>
